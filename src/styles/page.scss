@@ -64,6 +64,10 @@ flex-grow: 1;
                 border-radius: 10px;
                 /* Optional, to make it rounded */
             }
+
+            scrollbar-width: thin;
+            scrollbar-color: black #grey;
+            /* thumb color and track color */
         }
 
         .filter {
@@ -159,4 +163,8 @@ flex-grow: 1;
         }
     }
     .change-ui-color-btn {}
+}
+
+.hidden {
+    display: none !important;
 }

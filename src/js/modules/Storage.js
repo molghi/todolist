@@ -1,7 +1,6 @@
 // to work with local storage
 class LS {
     constructor() {
-        console.log(`Hello from the LS (localStorage) module!`)
         // this.save('name', 'John')
         // this.save('hobbies', JSON.stringify(['cooking', 'running', 'sleeping']))
         // this.get('name')
@@ -14,12 +13,13 @@ class LS {
     save(key, item, type='primitive') {
         if(type==='primitive') {
             localStorage.setItem(key, item)
+        } else { // it is an array
+            localStorage.setItem(key, item)
         }
     }
 
     // get from local storage
     get(item) {
-        console.log(localStorage.getItem(item))
         return localStorage.getItem(item)
     }
 

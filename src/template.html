@@ -18,7 +18,7 @@
             <h2>Add Your New To-Do</h2>
 
             <form action="">
-                <input tabindex="1" class="form-input" type="text" placeholder="Your new todo">
+                <input autocomplete="off" name="forminput" tabindex="1" class="form-input" type="text" placeholder="Your new todo">
                 <button tabindex="2" class="form-btn">
                     <i class="fa-solid fa-plus"></i>
                     Add
@@ -27,36 +27,12 @@
 
             <div class="items">
                 <div class="filter">
-                    <input tabindex="3" class="filter-input" type="text" placeholder="Filter your todos">
+                    <input autocomplete="off" tabindex="3" class="filter-input" type="text" placeholder="Filter your todos">
                 </div>
 
-                <div class="items__title">Todos: <span>2</span></div>
+                <div class="items__title">Todos: <span></span></div>
 
-                <div class="items__wrapper">
-                    <div class="item">
-                        <div class="item__name" title="Read a book">Read a book</div>
-                        <div class="item__btns">
-                            <button class="item__btn item__btn--edit" title="Edit">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button class="item__btn item__btn--remove" title="Delete">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <div class="item__name" title="An example of a particularly long task, very long, soooooooooo loooong">An example of a particularly long task, very long, soooooooooo loooong</div>
-                        <div class="item__btns">
-                            <button class="item__btn item__btn--edit" title="Edit">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button class="item__btn item__btn--remove" title="Delete">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
+                <div class="items__wrapper"></div>
                 
 
                 <button class="clear-btn">Clear all todos</button>
@@ -68,7 +44,7 @@
     </div>
 
     <div class="actions">
-        <button title="You can also change it by pressing the tilda key (~)" class="action-btn change-ui-color-btn">Change UI colour</button>
+        <button title="You can also change it by pressing the tilda key" class="action-btn change-ui-color-btn">Change UI colour</button>
     </div>
 
 </body>

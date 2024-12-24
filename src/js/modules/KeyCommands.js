@@ -2,19 +2,18 @@
 
 class KeyCommands {
     constructor() {
-        console.log(`Hello from the KeyCommands module!`)
-        this.listen()
+        // this.listen()
     }
 
     listen() {
-        document.addEventListener('keydown', function(event) {   // 'keypress' is deprecated
-        if (event.code === 'Backquote') { // it's tilda
-            const newCol = prompt("Enter a new UI colour:")
-            if(!newCol) return 
-            document.documentElement.style.setProperty('--accent', newCol)
-            console.log(`UI colour now: ${newCol}`)
-        }
-    })
+    //     document.addEventListener('keydown', function(event) {   // 'keypress' is deprecated
+    //     if (event.code === 'Backquote') { // it's tilda
+    //         const newCol = prompt("Enter a new UI colour:")
+    //         if(!newCol) return 
+    //         document.documentElement.style.setProperty('--accent', newCol)
+    //         console.log(`UI colour now: ${newCol}`)
+    //     }
+    // })
     }
 }
 
