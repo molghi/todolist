@@ -8,7 +8,7 @@ class KeyCommands {
 
     listen() {
         document.addEventListener('keydown', function(event) {   // 'keypress' is deprecated
-        if (event.code === 'KeyZ') {
+        if (event.code === 'Backquote') { // it's tilda
             const newCol = prompt("Enter a new UI colour:")
             if(!newCol) return 
             document.documentElement.style.setProperty('--accent', newCol)

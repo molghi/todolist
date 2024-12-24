@@ -16,3 +16,12 @@ function init() {
     
 }
 init()
+
+
+/* CRUD functionality:
+Create
+Read
+Update
+Delete
+- store in LS and pull from there
+*/
