@@ -1,0 +1,108 @@
+@use './initial' as *;
+
+.section {
+
+    margin-top: 20px;
+
+    h1 {
+        text-align: center;
+        margin-bottom: 50px;
+        font-size: 40px;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    form {
+        display: flex;
+        column-gap: 10px;
+        text-align: center;
+        margin-bottom: 70px;
+        .form-input {
+            flex-grow: 1;
+        }
+
+        .form-btn {
+            min-width: 71px;
+        }
+    }
+
+
+
+
+    .items {
+        text-align: center;
+
+        .filter {
+            margin-bottom: 50px;
+            .filter-input {
+                width: 100%;
+            }
+        }
+
+        &__title {
+            text-align: left;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+
+        .item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            column-gap: 10px;
+            border: 1px solid $accent;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            transition: box-shadow .2s;
+            &:last-of-type {
+                margin-bottom: 50px;
+            }
+            &:hover {
+                box-shadow: 0 0 10px $accent;
+            }
+            &__name {
+                max-width: 615px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            &__btns {
+                display: flex;
+                align-items: center;
+                column-gap: 10px;
+            }
+
+            &__btn {}
+
+            &__btn--edit {}
+
+            &__btn--remove {}
+        }
+
+        .clear-btn {}
+
+    }
+
+    input {
+        min-height: 62px;
+        padding-left: 15px;
+        &::placeholder {
+                transition: opacity .3s;
+            }
+        
+            &:focus::placeholder {
+                opacity: 0.3;
+            }
+    }
+
+    button {
+        &:focus {
+                box-shadow: 0 0 10px $accent;
+            }
+    }
+}
