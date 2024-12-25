@@ -4,11 +4,14 @@ import '../styles/main.scss'
 
 import Model from './modules/Model.js'  
 import View from './modules/View.js'  
+import favicon from '../img/favicon.ico'
 
 const Logic = new Model()
 const Visual = new View()
-let oldValue
 
+// =======================================================================================================================================
+
+// on app start:
 function init() {
     const accentColor = Logic.getFromLS('colorUI')
     if(accentColor) {
@@ -30,32 +33,28 @@ function init() {
 }
 init()
 
+// =======================================================================================================================================
 
 function runEventListeners() {
     Visual.handleActionsClick(Logic.saveToLS) // handles the click on 'Change UI colour'
     Visual.handleKeyPresses(Logic.saveToLS) // to change the UI color by pressing the tilda key
-    // Visual.formSubmit(pushTodos) // creating new todos, in DOM and local storage
     Visual.handleFiltering()
     Visual.handleRemovingAllTodos(deleteTodos)
     Visual.handleRemovingTodo(deleteTodo) 
     Visual.handleEditingTodo(editTodo) 
-    Visual.formSubmit(handleFormSubmit) // creating new todos, in DOM and local storage
+    Visual.formSubmit(handleFormSubmit) // handleFormSubmit is a general fn
 }
 
+// =======================================================================================================================================
+
 function handleFormSubmit(value) {
-    if(Logic.state.isEditMode) { // editing
-        // console.log('old/now:',oldValue)
-        // console.log('new/change to:',value)
-        const indexToChange = Logic.state.todos.indexOf(oldValue)
+    if(Logic.state.isEditMode) { // editing 
+        const indexToChange = Logic.getStateTodos().indexOf(Logic.getOldValue())
         Visual.updateTodoElement(document.querySelector(`.item:nth-child(${indexToChange+1})`), value)
-        // document.querySelector(`.item:nth-child(${indexToChange+1})`).querySelector('.item__name').textContent = value
-        // document.querySelector(`.item:nth-child(${indexToChange+1})`).querySelector('.item__name').setAttribute('title', value)
-        Logic.state.todos[indexToChange] = value
+        Logic.getStateTodos()[indexToChange] = value
         Logic.pushTodosToLS() // push to local storage
-        Visual.changeH2('adding mode')
-        Visual.changeFormBtn('adding mode')
+        Visual.removeEditingMode() // change H2, change form btn, and dehighlight all todos
         Visual.clearFormInput()
-        Visual.highlightTodo('dehighlight')
         Logic.setEditMode(false)
     } else { // adding
         Visual.renderToDo(value)   // creating a DOM element and appending it -- rendering
@@ -64,7 +63,9 @@ function handleFormSubmit(value) {
     }
 }
 
-function pushTodos(newToDoValue) { // happens on form submission: 'formSubmit' calls this fn with formInputValue
+// =======================================================================================================================================
+
+function pushTodos(newToDoValue) { // happens on form submission: 'handleFormSubmit' calls this fn with formInputValue
     if(!newToDoValue) return
     Logic.pushToDo(newToDoValue) // push to Model's state
     Logic.pushTodosToLS() // push to local storage
@@ -72,26 +73,23 @@ function pushTodos(newToDoValue) { // happens on form submission: 'formSubmit' c
     Visual.toggleExtraFeatures()
 }
 
+// =======================================================================================================================================
 
 function deleteTodos() {
     Logic.removeTodos() // model state sets to []
     Logic.removeItemFromLS(`todos`) // local storage remove whats stored under that key
-    console.log(`All todos were deleted.`)
 }
+
+// =======================================================================================================================================
 
 function deleteTodo(todoText) {
     Logic.removeTodo(todoText) // removing from Model state
     Logic.pushTodosToLS() // push to local storage
 }
 
+// =======================================================================================================================================
+
 function editTodo(valueToEdit) {
-    oldValue = valueToEdit
-    Logic.setEditMode(true)
+    Logic.setOldValue(valueToEdit)
+    Logic.setEditMode(true) // we clicked the Edit btn so the mode is Edit now...
 }
-
-
-/* CRUD functionality:
-Create
-Read
-Update
-Delete */

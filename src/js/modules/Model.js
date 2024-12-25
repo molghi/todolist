@@ -3,10 +3,16 @@ import LS from './Storage'  // working with local storage
 class Model {
     state = {
         todos: [],
-        isEditMode: false
+        isEditMode: false,
+        oldValue: ''  // I need it in Editing mode
     }
 
-    constructor() {
+    getOldValue() {
+        return this.state.oldValue
+    }
+
+    setOldValue(val) {
+        this.state.oldValue = val
     }
 
     saveToLS(key, value, type='primitive') {
@@ -32,6 +38,10 @@ class Model {
 
     removeTodos() {
         this.state.todos = []
+    }
+
+    getStateTodos() {
+        return this.state.todos
     }
 
     removeTodo(todoText) {

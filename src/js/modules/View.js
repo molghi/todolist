@@ -15,6 +15,7 @@ class View {
 
     // =======================================================================================================================================
 
+    // handles the click on 'Change UI colour'
     handleActionsClick(handler) {
         document.querySelector('.actions').addEventListener('click', (e) => {
             /* 
@@ -33,9 +34,11 @@ class View {
 
     // =======================================================================================================================================
 
+    // changes UI colour
     changeUIColors() {
         const newColor = prompt("Enter a new UI colour:")
         if(!newColor) return 
+        if(!this.isValidHTMLColor(newColor)) return alert(`${newColor} is not a valid HTML colour!`)
         document.documentElement.style.setProperty('--accent', newColor)
         this.colorUI = newColor
         console.log(`UI colour now: ${newColor}`)
@@ -44,6 +47,16 @@ class View {
 
     // =======================================================================================================================================
 
+    // small helper fn for this.changeUIColors()
+    isValidHTMLColor(color) { // returns boolean
+        const element = document.createElement('div')
+        element.style.color = color
+        return element.style.color !== ''
+    }
+
+    // =======================================================================================================================================
+
+    // runs on app init: we check LS 'colorUI' and if exists, this fn runs
     setAccentColor(color) {
         if(!color) return
         document.documentElement.style.setProperty('--accent', color)
@@ -52,6 +65,7 @@ class View {
 
     // =======================================================================================================================================
 
+    // to be able to press tilda and change UI colours:
     handleKeyPresses(handler) {
         document.addEventListener('keydown', (e) => {      // 'keypress' is deprecated
         if (e.code === 'Backquote') {  // if it's tilda
@@ -63,6 +77,7 @@ class View {
 
     // =======================================================================================================================================
 
+    // form submit handler
     formSubmit(handler) {
         this.formEl.addEventListener('submit', (e) => {
             e.preventDefault()
@@ -77,12 +92,14 @@ class View {
     
     // =======================================================================================================================================
 
+    // clears form input
     clearFormInput() {
         this.formEl.elements.forminput.value = '' // clear the input
     }
 
     // =======================================================================================================================================
     
+    // renders to-do in the DOM
     renderToDo(toDoName) {
         const newToDo = document.createElement('div')
         newToDo.classList.add('item')
@@ -100,12 +117,14 @@ class View {
 
     // =======================================================================================================================================
     
+    // renders "Todos: [number]" in the UI
     renderTodosNumber(number) {
         this.todosNumberEl.textContent = number
     }
 
     // =======================================================================================================================================
 
+    // handles the filter input:
     handleFiltering() {
         this.filterInput.addEventListener('input', (e) => {
             const filterInputValue = this.filterInput.value.toLowerCase()
@@ -126,6 +145,7 @@ class View {
 
     // =======================================================================================================================================
 
+    // handles clicking on the Remove All Todos btn
     handleRemovingAllTodos(handler) {
         this.clearBtn.addEventListener('click', (e) => {
             const choice = confirm(`This will delete all of your todos. Are you certain?`)
@@ -141,7 +161,7 @@ class View {
 
     // =======================================================================================================================================
 
-    // hides or shows Filter, 'Todos:' and the clear btn
+    // hides or shows Filter, 'Todos:' and the clear btn if there are no todos
     toggleExtraFeatures() {
         if(!this.itemsWrapperEl.firstChild) {
             this.filterBlock.classList.add('hidden')
@@ -155,6 +175,7 @@ class View {
     }
     // =======================================================================================================================================
 
+    // handles clicking on the delete btn of any todo
     handleRemovingTodo(handler) {
         this.itemsWrapperEl.addEventListener('click', (e) => {
             if(!e.target.closest('.item__btn--remove')) return
@@ -163,13 +184,13 @@ class View {
             if(!choice) return
             e.target.closest('.item').remove() // remove from DOM
             this.renderTodosNumber(document.querySelectorAll('.item').length) // update 'Todos:'
-            console.log(`'${text}' was deleted`)
             handler(text)
         })
     }
 
     // =======================================================================================================================================
 
+    // handles clicking on the edit btn of any todo
     handleEditingTodo(handler) {
         this.itemsWrapperEl.addEventListener('click', (e) => {
             if(!e.target.closest('.item__btn--edit')) return
@@ -185,6 +206,7 @@ class View {
 
     // =======================================================================================================================================
 
+    // changes H2 to reflect the current mode (Adding/Editing)
     changeH2(mode) {
         if(mode==='edit mode') {
             this.h2.textContent = `Edit Your To-Do`
@@ -195,6 +217,7 @@ class View {
 
     // =======================================================================================================================================
 
+    // changes form btn to reflect the current mode (Adding/Editing)
     changeFormBtn(mode) {
         if(mode==='edit mode') {
             this.formBtn.innerHTML = `Edit`
@@ -206,20 +229,30 @@ Add`
 
     // =======================================================================================================================================
 
+    // highlights a todo (in editing)
     highlightTodo(toggle, el) {
         if(toggle === 'highlight') {
             el.classList.add('highlight')
         } else { // de-highlight
-            // el.classList.remove('highlight')
             document.querySelectorAll('.item').forEach(x => x.classList.remove('highlight'))
         }
     }
 
     // =======================================================================================================================================
 
+    // updates a todo (after form submit in editing)
     updateTodoElement(el, value) { 
         el.querySelector('.item__name').textContent = value
         el.querySelector('.item__name').setAttribute('title', value)
+    }
+
+    // =======================================================================================================================================
+
+    // changing the UI back to Adding mode: change H2, change form btn, and dehighlight all todos
+    removeEditingMode() {
+        this.changeH2('adding mode') 
+        this.changeFormBtn('adding mode')
+        this.highlightTodo('dehighlight')
     }
 
     // =======================================================================================================================================
