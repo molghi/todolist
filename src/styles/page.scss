@@ -168,3 +168,7 @@ flex-grow: 1;
 .hidden {
     display: none !important;
 }
+
+.highlight {
+    box-shadow: 0 0 10px var(--accent);
+}

@@ -1,13 +1,5 @@
 // to work with local storage
 class LS {
-    constructor() {
-        // this.save('name', 'John')
-        // this.save('hobbies', JSON.stringify(['cooking', 'running', 'sleeping']))
-        // this.get('name')
-        // this.remove('name')
-        // this.clear()
-        // this.length
-    }
 
     // save to local storage
     save(key, item, type='primitive') {

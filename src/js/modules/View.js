@@ -5,6 +5,12 @@ class View {
         this.itemsWrapperEl = document.querySelector('.items__wrapper')
         this.todosNumberEl = document.querySelector('.items__title span')
         this.filterInput = document.querySelector('.filter-input')
+        this.clearBtn = document.querySelector('.clear-btn')
+        this.filterBlock = document.querySelector('.filter')
+        this.titleBlock = document.querySelector('.items__title')
+        this.h2 = document.querySelector('h2')
+        this.formInput = document.querySelector('.form-input')
+        this.formBtn = document.querySelector('.form-btn')
     }
 
     // =======================================================================================================================================
@@ -61,12 +67,20 @@ class View {
         this.formEl.addEventListener('submit', (e) => {
             e.preventDefault()
             const formInputValue = this.formEl.elements.forminput.value.trim()
-            this.renderToDo(formInputValue) // creating a DOM element and appending it -- rendering
-            this.formEl.elements.forminput.value = '' // clear the input
+            if(!formInputValue) return
             handler(formInputValue) // key and value to update Model aka local storage
         })
     }
+
+    // const allCurrentItems = Array.from(this.itemsWrapperEl.querySelectorAll('.item')).map(x => x.querySelector('.item__name').textContent.toLowerCase())
+    // if(allCurrentItems.includes(formInputValue.toLowerCase())) return alert('You have already added this todo!')
     
+    // =======================================================================================================================================
+
+    clearFormInput() {
+        this.formEl.elements.forminput.value = '' // clear the input
+    }
+
     // =======================================================================================================================================
     
     renderToDo(toDoName) {
@@ -93,18 +107,119 @@ class View {
     // =======================================================================================================================================
 
     handleFiltering() {
-        this.filterInput.addEventListener('input', function(e) {
-            const filterInputValue = this.value
+        this.filterInput.addEventListener('input', (e) => {
+            const filterInputValue = this.filterInput.value.toLowerCase()
             const allTodoEls = document.querySelectorAll('.item')
             allTodoEls.forEach(todoEl => {
-                const todoText = todoEl.querySelector('.item__name').textContent
+                const todoText = todoEl.querySelector('.item__name').textContent.toLowerCase()
                 if(!todoText.includes(filterInputValue)) {
                     todoEl.classList.add('hidden')
                 } else {
                     todoEl.classList.remove('hidden')
                 }
             })
+            const todosSatisfyingCriterion = Array.from(document.querySelectorAll('.item')).filter(x => !x.classList.contains('hidden')).length
+            this.renderTodosNumber(todosSatisfyingCriterion)
+            if(!filterInputValue) this.renderTodosNumber(document.querySelectorAll('.item').length)
         })
+    }
+
+    // =======================================================================================================================================
+
+    handleRemovingAllTodos(handler) {
+        this.clearBtn.addEventListener('click', (e) => {
+            const choice = confirm(`This will delete all of your todos. Are you certain?`)
+            if(!choice) return
+            while(this.itemsWrapperEl.firstChild) { 
+                this.itemsWrapperEl.removeChild(this.itemsWrapperEl.firstChild) // remove all from DOM
+            } 
+            this.renderTodosNumber(0) // set Todos: to 0
+            this.toggleExtraFeatures()
+            handler()
+        })
+    }
+
+    // =======================================================================================================================================
+
+    // hides or shows Filter, 'Todos:' and the clear btn
+    toggleExtraFeatures() {
+        if(!this.itemsWrapperEl.firstChild) {
+            this.filterBlock.classList.add('hidden')
+            this.titleBlock.classList.add('hidden')
+            this.clearBtn.classList.add('hidden')
+        } else {
+            this.filterBlock.classList.remove('hidden')
+            this.titleBlock.classList.remove('hidden')
+            this.clearBtn.classList.remove('hidden')
+        }
+    }
+    // =======================================================================================================================================
+
+    handleRemovingTodo(handler) {
+        this.itemsWrapperEl.addEventListener('click', (e) => {
+            if(!e.target.closest('.item__btn--remove')) return
+            const text = e.target.closest('.item').querySelector('.item__name').textContent
+            const choice = confirm(`Are you certain you want to delete this todo?\n\n${text}`)
+            if(!choice) return
+            e.target.closest('.item').remove() // remove from DOM
+            this.renderTodosNumber(document.querySelectorAll('.item').length) // update 'Todos:'
+            console.log(`'${text}' was deleted`)
+            handler(text)
+        })
+    }
+
+    // =======================================================================================================================================
+
+    handleEditingTodo(handler) {
+        this.itemsWrapperEl.addEventListener('click', (e) => {
+            if(!e.target.closest('.item__btn--edit')) return
+            this.changeH2('edit mode') // changing H2
+            this.changeFormBtn('edit mode') // changing form btn: + Add --> Edit
+            const valueToEdit = e.target.closest('.item').querySelector('.item__name').textContent
+            this.formInput.value = valueToEdit // bringing the value to form
+            this.formInput.focus()
+            this.highlightTodo('highlight', e.target.closest('.item')) // highlight it visually
+            handler(valueToEdit)
+        })
+    }
+
+    // =======================================================================================================================================
+
+    changeH2(mode) {
+        if(mode==='edit mode') {
+            this.h2.textContent = `Edit Your To-Do`
+        } else {
+            this.h2.textContent = `Add Your New To-Do`
+        }
+    }
+
+    // =======================================================================================================================================
+
+    changeFormBtn(mode) {
+        if(mode==='edit mode') {
+            this.formBtn.innerHTML = `Edit`
+        } else {
+            this.formBtn.innerHTML = `<i class="fa-solid fa-plus"></i>
+Add`
+        }
+    }
+
+    // =======================================================================================================================================
+
+    highlightTodo(toggle, el) {
+        if(toggle === 'highlight') {
+            el.classList.add('highlight')
+        } else { // de-highlight
+            // el.classList.remove('highlight')
+            document.querySelectorAll('.item').forEach(x => x.classList.remove('highlight'))
+        }
+    }
+
+    // =======================================================================================================================================
+
+    updateTodoElement(el, value) { 
+        el.querySelector('.item__name').textContent = value
+        el.querySelector('.item__name').setAttribute('title', value)
     }
 
     // =======================================================================================================================================
