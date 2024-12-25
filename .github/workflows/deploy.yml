@@ -3,29 +3,42 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - main
+      - main # Run this workflow when you push to the main branch
+  workflow_dispatch: # Allows you to manually trigger the workflow
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4 # Checkout the repository code
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "16"
+          node-version: "16" # Set your Node.js version (or adjust if needed)
 
       - name: Install dependencies
-        run: npm install
+        run: npm install # Install dependencies
 
       - name: Build project
-        run: npm run build
+        run: npm run build # Run your build script (ensure 'dist' is the output folder)
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload build artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
+          path: ./dist # Path to the built files (adjust if your output folder is different)
+
+  deploy:
+    needs: build # This step depends on the build job
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4 # Deploy to GitHub Pages
