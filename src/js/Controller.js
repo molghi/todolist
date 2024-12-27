@@ -18,17 +18,20 @@ function init() {
         Visual.setAccentColor(accentColor)
     }
 
-    const myTodos = Logic.getFromLS('todos')
-    if(myTodos) { // if local storage for todos is not empty...
-        const fetchedTodos = JSON.parse(myTodos)
-        fetchedTodos.forEach(toDo => {
+    const myState = Logic.getFromLS('state')
+    if(myState) { // if local storage for state is not empty...
+        const fetchedState = JSON.parse(myState)
+        console.log(`fetchedState`,fetchedState)
+        fetchedState.todos.forEach(toDo => {
             Visual.renderToDo(toDo) // render each todo
             Logic.pushToDo(toDo) // push to Model's state
         }) 
-        Visual.renderTodosNumber(fetchedTodos.length) // and render how many of them I have
+        console.log(`LogicState`, Logic.getState())
+        // Visual.renderTodosNumber(fetchedTodos.length) // and render how many of them I have
     }
 
-    Visual.toggleExtraFeatures()
+    // Visual.toggleExtraFeatures()
+    Visual.focusInput()
     runEventListeners() 
 }
 init()
@@ -36,13 +39,25 @@ init()
 // =======================================================================================================================================
 
 function runEventListeners() {
-    Visual.handleActionsClick(Logic.saveToLS) // handles the click on 'Change UI colour'
-    Visual.handleKeyPresses(Logic.saveToLS) // to change the UI color by pressing the tilda key
-    Visual.handleFiltering()
-    Visual.handleRemovingAllTodos(deleteTodos)
+    // Visual.handleActionsClick(Logic.saveToLS) // handles the click on 'Change UI colour'
+    // Visual.handleKeyPresses(Logic.saveToLS) // to change the UI color by pressing the tilda key
+    // Visual.handleFiltering()
+    // Visual.handleRemovingAllTodos(deleteTodos)
     Visual.handleRemovingTodo(deleteTodo) 
     Visual.handleEditingTodo(editTodo) 
     Visual.formSubmit(handleFormSubmit) // handleFormSubmit is a general fn
+    Visual.handleArrowKeys(arrowKeysHandler)
+}
+
+// =======================================================================================================================================
+
+function arrowKeysHandler(command, activeEl) {
+    if(command === 'show previous command') {
+        activeEl.value = Logic.getRecentCommand('prev')
+    }
+    if(command === 'show next command') {
+        activeEl.value = Logic.getRecentCommand('next')
+    }
 }
 
 // =======================================================================================================================================
@@ -57,9 +72,28 @@ function handleFormSubmit(value) {
         Visual.clearFormInput()
         Logic.setEditMode(false)
     } else { // adding
-        Visual.renderToDo(value)   // creating a DOM element and appending it -- rendering
-        Visual.clearFormInput()    // clear the input
-        pushTodos(value)
+        const [command, todoObj] = Logic.makeTodoObject(value)
+        console.log(command, todoObj)
+        if(!command) {
+            Visual.showSystemMessage(todoObj.msg)
+        }
+        if(command === 'add') {
+            todoObj.order = Logic.getStateTodos().length+1  // adding its number
+            Logic.pushToDo(todoObj)  // pushing todo to Model's state
+            Logic.pushRecentCommand(todoObj.command) // pushing recent command to Model's state
+            Logic.saveToLS('state', JSON.stringify(Logic.getState()), 'reference') // pushing Model's state to local storage
+            let actionDone 
+            if(command === 'add') actionDone = 'added'
+            if(command === 'edit') actionDone = 'edited'
+            if(command?.startsWith('del')) actionDone = 'deleted'
+            const actionString = `${actionDone} '${todoObj.name}'! <span>priority: ${todoObj.priority}, category: ${todoObj.category}, deadline: ${todoObj.deadline}, subtasks: ${todoObj.hasSubtasks}</span>`
+            Visual.showSystemMessage(actionString)
+            Visual.renderToDo(todoObj)   // creating a DOM element and appending it
+        } else {
+            console.log(`received other command, not 'add'`)
+        }
+        Visual.clearFormInput()
+        // pushTodos(value)
     }
 }
 
@@ -69,7 +103,7 @@ function pushTodos(newToDoValue) { // happens on form submission: 'handleFormSub
     if(!newToDoValue) return
     Logic.pushToDo(newToDoValue) // push to Model's state
     Logic.pushTodosToLS() // push to local storage
-    Visual.renderTodosNumber(JSON.parse(Logic.getFromLS('todos')).length)  // render how many of them I have
+    // Visual.renderTodosNumber(JSON.parse(Logic.getFromLS('todos')).length)  // render how many of them I have
     Visual.toggleExtraFeatures()
 }
 

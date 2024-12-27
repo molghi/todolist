@@ -1,8 +1,7 @@
 @use './initial' as *;
 
 .section {
-flex-grow: 1;
-    margin-top: 20px;
+    flex-grow: 1;
 
     h1 {
         text-align: center;
@@ -16,13 +15,19 @@ flex-grow: 1;
     }
 
     form {
-        display: flex;
-        column-gap: 10px;
-        text-align: center;
-        margin-bottom: 70px;
+        margin-bottom: 10px;
+        width: 100%;
 
         .form-input {
             flex-grow: 1;
+            width: 100%;
+            border-bottom: 1px solid var(--accent);
+            &::placeholder {
+                transition: all .3s;
+            }
+            &:focus::placeholder {
+                opacity: 0.5;
+            }
         }
 
         .form-btn {
@@ -34,13 +39,9 @@ flex-grow: 1;
 
 
     .items {
-        text-align: center;
+        // text-align: center;
 
         &__wrapper {
-            max-height: 280px;
-            margin-bottom: 20px;
-            overflow-y: scroll;
-            padding: 10px;
             padding-bottom: 0;
 
             /* Styling the track (background of the scrollbar) */
@@ -85,20 +86,49 @@ flex-grow: 1;
 
 
         .item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            column-gap: 10px;
-            border: 1px solid var(--accent);
-            padding: 10px 15px;
-            margin-bottom: 20px;
-            transition: box-shadow .2s;
-            // &:last-of-type {
-            //     margin-bottom: 50px;
-            // }
-            &:hover {
-                box-shadow: 0 0 10px var(--accent);
+            // transition: all .2s;
+            
+            &__holder {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                column-gap: 30px;
+                margin-bottom: 3px;
+                border-bottom: none;
+                width: 100%;
             }
+            &__wrapper {
+                flex-grow: 1;
+                tbody {
+                }
+                tr {
+                    display: flex;
+                    align-items: center;
+                    column-gap: 33px;
+                    max-width: 1300px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    width: 100%;
+                }
+                td{
+                    white-space: nowrap;
+                    flex-shrink: 1;
+                    flex-grow: 0;
+                    &:nth-child(2) {
+                        flex-shrink: 0;
+                        text-align: left;
+                        flex-basis: 135px;
+                        max-width: 135px;
+                        flex-grow: 1;
+                    }
+                    span {
+                        font-style: italic;
+                        opacity: 0.5;
+                    }
+                }
+            }
+
+
             &__name {
                 max-width: 615px;
                 overflow: hidden;
@@ -109,37 +139,63 @@ flex-grow: 1;
             &__btns {
                 display: flex;
                 align-items: center;
-                column-gap: 10px;
+                column-gap: 20px;
             }
 
-            &__btn {}
+            &__subtasks-holder {
+                table {
+                    display: block;
+                    width: 100%;
+                }
+                tbody {
+                    width: 100%;
+                    display: block;
+                }
+                tr{
+                    width: 100%;
+                }
+            }
 
-            &__btn--edit {}
+            &__holder {
+                &:hover {
+                    background-color: #222;
+                }
+            }
+            
+            &__subtask {
+                margin-right: auto;
+                td:nth-child(3) {
+                    flex-grow: 1;
+                    flex-shrink: 0;
+                    flex-grow: 100px;
+                    max-width: 100px;
+                }
+                td span {
+                    font-style: italic;
+                    opacity: 0.5;
+                }
+                height: 21px;
+                display: flex;
+                align-items: center;
+                column-gap: 33px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                width: 100%;
+                margin-bottom: 3px;
+                &:hover {
+                    background-color: #222;
+                }
+                &-btns {
+                    display: flex;
+                    align-items: center;
+                    column-gap: 15px;
+                }
+            }
 
-            &__btn--remove {}
         }
 
-        .clear-btn {}
-
     }
 
-    input {
-        min-height: 62px;
-        padding-left: 15px;
-        &::placeholder {
-                transition: opacity .3s;
-            }
-        
-            &:focus::placeholder {
-                opacity: 0.3;
-            }
-    }
-
-    button {
-        &:focus {
-                box-shadow: 0 0 10px var(--accent);
-            }
-    }
 }
 
 
@@ -153,7 +209,7 @@ flex-grow: 1;
         padding: 0;
         border: none;
         opacity: 0.2;
-        transition: all .3s;
+        // transition: all .3s;
         &:hover {
             opacity: 1;
             background-color: transparent;
@@ -162,8 +218,10 @@ flex-grow: 1;
             text-decoration: underline;
         }
     }
-    .change-ui-color-btn {}
+
 }
+
+
 
 .hidden {
     display: none !important;
@@ -171,4 +229,22 @@ flex-grow: 1;
 
 .highlight {
     box-shadow: 0 0 10px var(--accent);
+}
+
+.system-message {
+    display: block;
+    width: 100%;
+    span:nth-child(1) {
+        opacity: 0.5;
+    }
+}
+
+.input-box {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    font-weight: bold;
+    span {
+        font-weight: normal;
+    }
 }

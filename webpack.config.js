@@ -52,7 +52,7 @@ module.exports = {
     },
     plugins: [  
         new HtmlWebpackPlugin({
-            title: 'Your To-Do List',
+            title: 'Terminal Tasker',
             filename: 'index.html',
             template: 'src/template.html'
         }),

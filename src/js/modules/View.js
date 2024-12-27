@@ -11,6 +11,7 @@ class View {
         this.h2 = document.querySelector('h2')
         this.formInput = document.querySelector('.form-input')
         this.formBtn = document.querySelector('.form-btn')
+        this.systemMsgEl = document.querySelector('.system-message span:nth-child(2)')
     }
 
     // =======================================================================================================================================
@@ -92,6 +93,12 @@ class View {
     
     // =======================================================================================================================================
 
+    showSystemMessage(msgString) {
+        this.systemMsgEl.innerHTML = msgString
+    }
+
+    // =======================================================================================================================================
+
     // clears form input
     clearFormInput() {
         this.formEl.elements.forminput.value = '' // clear the input
@@ -100,19 +107,82 @@ class View {
     // =======================================================================================================================================
     
     // renders to-do in the DOM
-    renderToDo(toDoName) {
+    renderToDo(toDoObj) {
+        const {name, isCompleted, priority, deadline, category, created, hasSubtasks, subtasks, order} = toDoObj
+
         const newToDo = document.createElement('div')
         newToDo.classList.add('item')
-        newToDo.innerHTML = `<div class="item__name" title="${toDoName}">${toDoName}</div>
+
+        // Format the creation date
+        const itsDate = `${new Date(created).getFullYear()}:${new Date(created).getMonth()+1}:${new Date(created).getDate().toString().padStart(2,0)}`
+
+        // Generate the subtask number if subtasks exist
+        const subtaskNum = !hasSubtasks ? '' : `<td class="item__subtasks-num"><span>num of subs: </span>${subtasks.length}</td>`
+
+        // Map over subtasks and generate HTML rows
+        const subtasksEl = subtasks?.map((subtask, i) => {
+    return `<tr class="item__subtask">
+        <td>----</td>
+        <td>${i+1}.</td>
+        <td title="${subtask.name}">${subtask.name}</td>
+        <td title="${subtask.isCompleted}"><span>completed:</span> ${subtask.isCompleted}</td>
+        <td class="item__subtask-btns">
+            <button class="item__subtask-btn item__subtask-btn--complete" title="Complete">
+                <i class="fa-solid fa-circle-check"></i>
+            </button>
+            <button class="item__subtask-btn item__subtask-btn--edit" title="Edit">
+                <i class="fa-solid fa-pen"></i>
+            </button>
+            <button class="item__subtask-btn item__subtask-btn--remove" title="Delete">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </td>
+    </tr>`;
+}).join('')
+
+        // Create the item HTML structure
+        newToDo.innerHTML = `
+        <div class="item__holder">
+        
+        <table class="item__wrapper">
+                    <tbody>
+                    <tr>
+                        <td class="item__number">${order}</td>
+                        <td class="item__name" title="${name}">${name}</td>
+                        <td class="item__priority" title="priority: ${priority || 'unset'}"><span>priority:</span> ${priority || 'unset'}</td>
+                        <td class="item__category" title="category: ${category || 'unset'}"><span>category:</span> ${category || 'unset'}</td>
+                        <td class="item__deadline" title="deadline: ${deadline || 'unset'}"><span>deadline:</span> ${deadline || 'unset'}</td>
+                        <td class="item__has-subtasks" title="subtasks: ${hasSubtasks ? 'yes' : 'none'}"><span>subtasks:</span> ${hasSubtasks ? 'yes' : 'none'}</td>
+                        ${subtaskNum}
+                        <td class="item__is-completed" title="completed: ${isCompleted}"><span>completed:</span> ${isCompleted}</td>
+                        <td class="item__date" title="creation date: ${itsDate}"><span>created:</span> ${itsDate}</td>
+                    </tr>
+                    </tbody>
+                </table>
+
                         <div class="item__btns">
+                            <button class="item__btn item__btn--complete" title="Complete">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </button>
                             <button class="item__btn item__btn--edit" title="Edit">
                                 <i class="fa-solid fa-pen"></i>
                             </button>
                             <button class="item__btn item__btn--remove" title="Delete">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
-                        </div>`
-        this.itemsWrapperEl.appendChild(newToDo)
+                        </div>
+                        </div>
+
+                        ${hasSubtasks ? `<div class="item__subtasks-holder">
+                            <table>
+                                <tbody>
+                                    ${subtasksEl}
+                                </tbody>
+                            </table>
+                        </div>` : ''}
+                        
+                        `
+        this.itemsWrapperEl.appendChild(newToDo) 
     }
 
     // =======================================================================================================================================
@@ -253,6 +323,25 @@ Add`
         this.changeH2('adding mode') 
         this.changeFormBtn('adding mode')
         this.highlightTodo('dehighlight')
+    }
+
+    // =======================================================================================================================================
+
+    focusInput() {
+        this.formInput.focus()
+    }
+
+    // =======================================================================================================================================
+
+    handleArrowKeys(handler) {
+        document.addEventListener('keydown', (e) => {
+            if(e.code === 'ArrowUp' && document.activeElement.classList.contains('form-input')) {
+                handler(`show previous command`, document.activeElement)
+            }
+            if(e.code === 'ArrowDown' && document.activeElement.classList.contains('form-input')) {
+                handler(`show next command`, document.activeElement)
+            }
+        })
     }
 
     // =======================================================================================================================================
