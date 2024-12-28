@@ -70,7 +70,7 @@ class Model {
 
         if(!this.state.commands.includes(command)) {
             command = null
-            todoObj.msg = `such a command does't exist. Type 'manual' or 'man' to see the manual.`
+            todoObj.msg = `command does not exist, type "manual" or "man" to see the manual`
             return [command, todoObj]
         }
 

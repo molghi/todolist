@@ -84,7 +84,7 @@ class View {
             e.preventDefault()
             const formInputValue = this.formEl.elements.forminput.value.trim()
             if(!formInputValue) return
-            handler(formInputValue) // key and value to update Model aka local storage
+            handler(formInputValue.slice(2)) // key and value to update Model aka local storage
         })
     }
 
@@ -101,7 +101,7 @@ class View {
 
     // clears form input
     clearFormInput() {
-        this.formEl.elements.forminput.value = '' // clear the input
+        this.formEl.elements.forminput.value = '> ' // clear the input
     }
 
     // =======================================================================================================================================
@@ -341,6 +341,60 @@ Add`
             if(e.code === 'ArrowDown' && document.activeElement.classList.contains('form-input')) {
                 handler(`show next command`, document.activeElement)
             }
+        })
+    }
+
+    // =======================================================================================================================================
+    
+    // shifts the cursor in the input field to the end of what's in the input field
+    shiftCursorToTheEndAfterPasting() { 
+        this.formInput.addEventListener('paste', (e) => {   // I need the 'paste' event
+            setTimeout(() => { // I need 'setTimeout' to allow the paste operation to complete before manipulating the cursor position
+                this.shiftCursorToTheEndNow()
+            }, 0)
+        })
+    }
+
+    shiftCursorToTheEndNow() { 
+        const length = this.formInput.value.length
+        this.formInput.setSelectionRange(length, length) // I set the cursor to the end of the input using 'selectionStart' and 'selectionEnd' properties, or the 'setSelectionRange' method
+    }
+
+    // =======================================================================================================================================
+
+    // to make sure that '> ' at the beginning of the input is undeletable
+    formatInput() {
+        ['input', 'keydown'].forEach(ev => {
+            this.formInput.addEventListener(ev, (e) => {
+                if(ev === 'keydown') {
+                    if(e.code === 'KeyZ' && e.metaKey) { // tracking the undo operation
+                        setTimeout(() => { // I need timeout with 1ms to wait until the undo operation of ctrl+Z is over
+                            if(this.formInput.value.slice(2).includes('> ')) {
+                                const sliced = this.formInput.value.slice(2) // slicing the first '> ' out
+                                const extraPrefixIndex = sliced.indexOf('> ')
+                                if (extraPrefixIndex !== -1) { // Detect extra prefixes
+                                    this.formInput.value = '> ' + sliced.slice(extraPrefixIndex + 2); // Remove extras
+                                }
+                            }
+                        }, 10) // the flickering in the input happens because of this 10ms, which I must have so the browser could bring back the before-the-change/deletion value before I capture it -- else I capture the input value before the browser brings it back (and it's effectively null) -- I guess I will have to put up with that... which is a little annoying
+                    }
+                }
+                if(this.formInput.value.length < 3 || !this.formInput.value.startsWith('> ')) {
+                    const currentContent = this.formInput.value.slice(2) // Preserve existing content beyond the prefix
+                    this.formInput.value = '> ' + currentContent
+                    this.shiftCursorToTheEndNow()
+                    this.shiftCursorToTheEndAfterPasting()
+                } 
+            })
+        })
+    }
+
+    // =======================================================================================================================================
+    
+    // I allow no uppercase to be typed in
+    deUppercaseInput() {
+        this.formInput.addEventListener('input', (e) => {
+            this.formInput.value = this.formInput.value.toLowerCase()
         })
     }
 

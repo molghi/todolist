@@ -33,6 +33,7 @@ function init() {
     // Visual.toggleExtraFeatures()
     Visual.focusInput()
     runEventListeners() 
+    Visual.shiftCursorToTheEndNow()
 }
 init()
 
@@ -47,17 +48,23 @@ function runEventListeners() {
     Visual.handleEditingTodo(editTodo) 
     Visual.formSubmit(handleFormSubmit) // handleFormSubmit is a general fn
     Visual.handleArrowKeys(arrowKeysHandler)
+    Visual.shiftCursorToTheEndAfterPasting()
+    Visual.formatInput()
+    Visual.deUppercaseInput()
 }
 
 // =======================================================================================================================================
 
 function arrowKeysHandler(command, activeEl) {
     if(command === 'show previous command') {
-        activeEl.value = Logic.getRecentCommand('prev')
+        activeEl.value = '> ' + Logic.getRecentCommand('prev')
     }
     if(command === 'show next command') {
-        activeEl.value = Logic.getRecentCommand('next')
+        activeEl.value = '> ' + Logic.getRecentCommand('next')
     }
+    setTimeout(() => {
+        Visual.shiftCursorToTheEndNow()
+    }, 10);
 }
 
 // =======================================================================================================================================
@@ -86,7 +93,7 @@ function handleFormSubmit(value) {
             if(command === 'add') actionDone = 'added'
             if(command === 'edit') actionDone = 'edited'
             if(command?.startsWith('del')) actionDone = 'deleted'
-            const actionString = `${actionDone} '${todoObj.name}'! <span>priority: ${todoObj.priority}, category: ${todoObj.category}, deadline: ${todoObj.deadline}, subtasks: ${todoObj.hasSubtasks}</span>`
+            const actionString = `${actionDone} "${todoObj.name}"! <span>priority: ${todoObj.priority}, category: ${todoObj.category}, deadline: ${todoObj.deadline}, subtasks: ${todoObj.hasSubtasks}</span>`
             Visual.showSystemMessage(actionString)
             Visual.renderToDo(todoObj)   // creating a DOM element and appending it
         } else {
