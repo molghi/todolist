@@ -21,7 +21,9 @@ class Model {
             '-s',
         ],
         recentCommands: ['add do workout --prio high --cat other --dead today', 'add food shopping -p medium -c food -s buy apples, buy bananas, buy oats, buy cheese, buy juice', 'add home chores -p high -c other -d 20:00 -s vacuum clean, dust off', 'manual'],
-        count: 0
+        count: 0,
+        accentColor: '#32CD32',
+        mode: ''
     }
 
     // ================================================================================================
@@ -45,6 +47,12 @@ class Model {
 
     getState() {
         return this.state
+    }
+
+    // ================================================================================================
+
+    changeAccentColor(color) {
+        this.state.accentColor = color
     }
 
     // ================================================================================================
@@ -121,7 +129,7 @@ class Model {
             const indexOfFirstSpace = string.indexOf(' ') > 0 ? string.indexOf(' ') : string.length
             const indexOfFirstFlag = string.indexOf('-') > 0 ? string.indexOf('-') : string.length
             const name = string.slice(indexOfFirstSpace, indexOfFirstFlag).trim()
-            console.warn(`name: '${name}'`)
+            console.log(`name: '${name}'`)
             if(!name) return [null, 'error']
             return [name, null]
         }
@@ -210,14 +218,23 @@ class Model {
         return this.state.todos
     }
 
-    removeTodo(todoText) {
-        const itsIndex = this.state.todos.indexOf(todoText)
-        if(itsIndex<0) return console.log(`Not found`)
+    removeTodo(index) {
+        // console.log(this.state.todos.map(x => x.name).join(', '))
+        const itsIndex = +index - 1
+        // console.log(itsIndex)
+        if(itsIndex<0) return console.log(`Negative index`)
         this.state.todos.splice(itsIndex, 1)
+        // console.log(this.state.todos.map(x => x.name).join(', '))
     }
 
     setEditMode(booleanFlag) {
         this.state.isEditMode = booleanFlag
+    }
+
+    readjustIndices() {
+        this.state.todos.forEach(todo => {
+            todo.order -= 1
+        })
     }
 }
 

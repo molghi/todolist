@@ -12,6 +12,7 @@ class View {
         this.formInput = document.querySelector('.form-input')
         this.formBtn = document.querySelector('.form-btn')
         this.systemMsgEl = document.querySelector('.system-message span:nth-child(2)')
+        this.itemToDelete = ''
     }
 
     // =======================================================================================================================================
@@ -163,8 +164,8 @@ class View {
     // =======================================================================================================================================
     
     // renders to-do in the DOM
-    renderToDo(toDoObj) {
-        const {name, isCompleted, priority, deadline, category, created, hasSubtasks, subtasks, order} = toDoObj
+    renderToDo(toDoObj, order) {
+        const {name, isCompleted, priority, deadline, category, created, hasSubtasks, subtasks} = toDoObj
 
         const newToDo = document.createElement('div')
         newToDo.classList.add('item')
@@ -305,12 +306,8 @@ class View {
     handleRemovingTodo(handler) {
         this.itemsWrapperEl.addEventListener('click', (e) => {
             if(!e.target.closest('.item__btn--remove')) return
-            const text = e.target.closest('.item').querySelector('.item__name').textContent
-            const choice = confirm(`Are you certain you want to delete this todo?\n\n${text}`)
-            if(!choice) return
-            e.target.closest('.item').remove() // remove from DOM
-            this.renderTodosNumber(document.querySelectorAll('.item').length) // update 'Todos:'
-            handler(text)
+            const todoName = e.target.closest('.item').querySelector('.item__name').textContent
+            handler(todoName)
         })
     }
 
@@ -463,6 +460,20 @@ Add`
         if(command?.startsWith('del')) actionDone = 'deleted'
         const actionString = `${actionDone} "${todoObj.name}"! <span>priority: ${todoObj.priority}, category: ${todoObj.category}, deadline: ${todoObj.deadline}, subtasks: ${todoObj.hasSubtasks}</span>` 
         return actionString   
+    }
+
+    // =======================================================================================================================================
+
+    setInputValue(value) {
+        this.formInput.value = value
+    }
+
+    // =======================================================================================================================================
+
+    removeAllTodos() {
+        while(this.itemsWrapperEl.firstChild) { 
+                this.itemsWrapperEl.removeChild(this.itemsWrapperEl.firstChild)
+            }
     }
 
     // =======================================================================================================================================
