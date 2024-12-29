@@ -82,7 +82,6 @@ function handleFormSubmit(value) { // value here is the string of the typed comm
         Logic.setEditMode(false)
     } else { // not editing
         const [command, todoObj] = Logic.makeTodoObject(value)
-        console.log(command, todoObj)
         if(!command) {  
             Visual.showSystemMessage(todoObj.msg)
         }
@@ -94,9 +93,16 @@ function handleFormSubmit(value) { // value here is the string of the typed comm
             const actionString = Visual.setDoneAction(command, todoObj)  // this is to show system message (see next line)
             Visual.showSystemMessage(actionString) // showing system message in the UI (underneath the input)
             Visual.renderToDo(todoObj)   // creating a DOM element and appending it
-        } else {
-            console.log(`received other command, not 'add'`)
+        } 
+        if(command === 'changecol' || command === 'cc') { 
+            const color = value.includes(' ') ? value.slice(value.indexOf(' ')+1) : null
+            const colorUI = Visual.changeUIColors(color)
+            if(colorUI) { // if it exists, if it's not null
+                Visual.showSystemMessage(`changed ui color to: ${colorUI === '#32cd32' ? 'default' : colorUI}`)
+                console.log(`UI colour now: ${colorUI}`)
+            } 
         }
+        console.log(`received other command, not 'add' -- '${command}'`)
         Visual.clearFormInput()
         // pushTodos(value)
     }

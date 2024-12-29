@@ -58,16 +58,15 @@ class Model {
     makeTodoObject(string) {
         const myString = string.toLowerCase().trimStart()
         if(!myString.trimEnd()) return console.log(`nothing was sent`)
-        return this.parseCommandString(myString)
+        return this.parseCommandString(myString)  // 'parseCommandString' returns [command, todoObj]
     }
 
     // ================================================================================================
     
     parseCommandString(string) {
-        // console.log('parseCommandString')
-        // console.log(`'${string}'`)
         let command = string.split(' ')[0]
         const todoObj = {}
+        if(command !== 'add') return [command, null]
 
         if(!this.state.commands.includes(command)) {
             command = null
@@ -118,12 +117,15 @@ class Model {
     parseName(string, parsedCommand) { // returns an array: name value and msg value
         if(string === parsedCommand) return [null, 'error: no task name was passed']
         if(string.slice(4).startsWith('-')) return [null, 'error: no task name was passed']
-        const indexOfFirstSpace = string.indexOf(' ') > 0 ? string.indexOf(' ') : string.length
-        const indexOfFirstFlag = string.indexOf('-') > 0 ? string.indexOf('-') : string.length
-        const name = string.slice(indexOfFirstSpace, indexOfFirstFlag).trim()
-        console.warn(`name: '${name}'`)
-        if(!name) return [null, 'error']
-        return [name, null]
+        if(parsedCommand === 'add') {
+            const indexOfFirstSpace = string.indexOf(' ') > 0 ? string.indexOf(' ') : string.length
+            const indexOfFirstFlag = string.indexOf('-') > 0 ? string.indexOf('-') : string.length
+            const name = string.slice(indexOfFirstSpace, indexOfFirstFlag).trim()
+            console.warn(`name: '${name}'`)
+            if(!name) return [null, 'error']
+            return [name, null]
+        }
+        return [null, null]
     }
 
     // ================================================================================================
