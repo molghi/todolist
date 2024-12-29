@@ -69,7 +69,7 @@ function arrowKeysHandler(command, activeEl) {
 
 function handleFormSubmit(value, type='') { // value here is the string of the typed command with the first '> ' sliced out
     let command, todoObj
-    command = value.slice(0, value.indexOf(' ')).trim()
+    command = value.includes(' ') ? value.slice(0, value.indexOf(' ')).trim() : value
 
     if(value.includes(`are you sure you want to delete`)) {
         value = value.slice(value.lastIndexOf(' ')+1)
@@ -83,7 +83,13 @@ function handleFormSubmit(value, type='') { // value here is the string of the t
         command = 'delete'
     }
 
-    // console.log(value, ',', command)
+    if(value.includes('delete all of your todos')) {
+        value = value.slice(value.lastIndexOf(' ')+1)
+        console.log(value)
+        command = 'clearall'
+    }
+
+    console.log(value, ',', command)
 
     if(!command) {  
         Visual.showSystemMessage('error: no command received')
@@ -106,6 +112,11 @@ function handleFormSubmit(value, type='') { // value here is the string of the t
 
     if(command === 'delete' || command === 'del' || Logic.state.mode === 'delete') {
         deleteItem(value)
+        return
+    }
+
+    if(command === 'clearall') {
+        deleteTodos(value)
         return
     }
     
@@ -204,9 +215,27 @@ function pushTodos(newToDoValue) { // happens on form submission: 'handleFormSub
 
 // =======================================================================================================================================
 
-function deleteTodos() {
-    Logic.removeTodos() // model state sets to []
-    Logic.removeItemFromLS(`todos`) // local storage remove whats stored under that key
+function deleteTodos(value) {
+    if(value === 'y' || value === 'yes') {
+        Visual.removeAllTodos()
+        Logic.removeTodos() // Model state.todos = []
+        Logic.saveToLS('state', JSON.stringify(Logic.getState()), 'reference') // pushing Model's state to local storage
+        Visual.showSystemMessage('all todos were deleted')
+        Visual.clearFormInput()
+        return
+    }
+    if(value === 'n' || value === 'no') {
+        Visual.showSystemMessage('deletion was cancelled')
+        Visual.clearFormInput()
+        return
+    }
+    if(value.startsWith('clearall')) {
+        Visual.setInputValue('> delete all of your todos? type y/n: ')
+        return
+    }
+    Visual.showSystemMessage('answer was not recognised')
+    Visual.clearFormInput()
+    // if(!value.startsWith('y') || !value.startsWith('n')) return 
 }
 
 // =======================================================================================================================================
