@@ -56,15 +56,16 @@ class Model {
     // ================================================================================================
 
     makeTodoObject(string) {
-        const myString = string.toLowerCase().trim()
-        if(!myString) return console.log(`nothing was sent`)
-        const parsed = this.parseCommandString(myString)
-        return parsed
+        const myString = string.toLowerCase().trimStart()
+        if(!myString.trimEnd()) return console.log(`nothing was sent`)
+        return this.parseCommandString(myString)
     }
 
     // ================================================================================================
     
     parseCommandString(string) {
+        // console.log('parseCommandString')
+        // console.log(`'${string}'`)
         let command = string.split(' ')[0]
         const todoObj = {}
 
@@ -84,21 +85,29 @@ class Model {
         todoObj.id = Date.now()
         todoObj.command = string
         
-        todoObj.name = string.slice(string.indexOf(' ')+1, string.indexOf('-')-1 <0 ? string.length : string.indexOf('-')-1).trim()
+        const [name, msg] = this.parseName(string, command)
+        if(!name) {
+            command = null
+            todoObj.msg = msg
+            todoObj.name = null
+            return [command, todoObj]
+        } else {
+            todoObj.name = name
+        }
         
-        todoObj.params = string.slice(string.indexOf('-'))
+        string.indexOf('-') < 0 ? todoObj.params = null : todoObj.params = string.slice(string.indexOf('-'))
 
-        this.setFlags('--name', '-n', todoObj, 'name', todoObj.params)
+        this.setFlags('--name', '-n ', todoObj, 'name', todoObj.params)
 
-        this.setFlags('--finished', '-f', todoObj, 'isCompleted', todoObj.params)
+        this.setFlags('--finished', '-f ', todoObj, 'isCompleted', todoObj.params)
 
-        this.setFlags('--prio', '-p', todoObj, 'priority', todoObj.params)
+        this.setFlags('--prio', '-p ', todoObj, 'priority', todoObj.params)
         
-        this.setFlags('--dead', '-d', todoObj, 'deadline', todoObj.params)
+        this.setFlags('--dead', '-d ', todoObj, 'deadline', todoObj.params)
         
-        this.setFlags('--cat', '-c', todoObj, 'category', todoObj.params)
+        this.setFlags('--cat', '-c ', todoObj, 'category', todoObj.params)
         
-        this.setFlags('--sub', '-s', todoObj, 'subtasks', todoObj.params)
+        this.setFlags('--sub', '-s ', todoObj, 'subtasks', todoObj.params)
 
         return [command, todoObj]
     }
@@ -106,36 +115,49 @@ class Model {
 
     // ================================================================================================
 
+    parseName(string, parsedCommand) { // returns an array: name value and msg value
+        if(string === parsedCommand) return [null, 'error: no task name was passed']
+        if(string.slice(4).startsWith('-')) return [null, 'error: no task name was passed']
+        const indexOfFirstSpace = string.indexOf(' ') > 0 ? string.indexOf(' ') : string.length
+        const indexOfFirstFlag = string.indexOf('-') > 0 ? string.indexOf('-') : string.length
+        const name = string.slice(indexOfFirstSpace, indexOfFirstFlag).trim()
+        console.warn(`name: '${name}'`)
+        if(!name) return [null, 'error']
+        return [name, null]
+    }
+
+    // ================================================================================================
+
     setFlags(flagLong, flagShort, object, property, params) {
         let flagLength, flagValue
 
-        if(params.includes(flagLong) || params.includes(flagShort)) {
+        if(params?.includes(flagLong) || params?.includes(flagShort)) {
             flagLength = params.includes(flagLong) ? flagLong.length : 2
             if(flagLength===2) {
-                const temp = params.slice(params.indexOf(flagShort)+flagLength+1)
+                let temp = params.slice(params.indexOf(flagShort)+flagLength+1)
+                if(temp.startsWith('-')) return flagValue = null  // in case if there is a flag but it has no value like -p here: add buy milk -p -c food
                 flagValue = temp.slice(0, temp.indexOf('-')-1 <0 ? temp.length : temp.indexOf('-')-1)
             } else {
-                const temp = params.slice(params.indexOf(flagLong)+flagLength+1)
+                let temp = params.slice(params.indexOf(flagLong)+flagLength+1)
+                if(temp.startsWith('-')) return flagValue = null  // in case if there is a flag but it has no value like -p here: add buy milk -p -c food
                 flagValue = temp.slice(0, temp.indexOf('-')-1 <0 ? temp.length : temp.indexOf('-')-1)
             }
-            if(property === 'subtasks') {
+            if(property === 'subtasks') { // subtasks is a special case #1
                 flagValue.split(',').forEach(subtask => object.subtasks.push({
                     name: subtask.trim(),
                     isCompleted: false,
                     created: new Date().toISOString(),
                     id: Date.now(),
-                    // priority: null
-                    // deadline: null
-                    // category: null
+                    // I think subtasks will have no priority, deadline or category
                 }))
                 object.subtasks.length > 0 ? object.hasSubtasks = true : object.hasSubtasks = false
                 return
             }
-            if(property === 'isCompleted') {
+            if(property === 'isCompleted') { // isCompleted is a special case #2
                 object[property] = Boolean(flagValue)
                 return
             }
-            object[property] = flagValue
+            object[property] = flagValue === '' ? null : flagValue
         } 
 
     }

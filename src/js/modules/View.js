@@ -82,9 +82,9 @@ class View {
     formSubmit(handler) {
         this.formEl.addEventListener('submit', (e) => {
             e.preventDefault()
-            const formInputValue = this.formEl.elements.forminput.value.trim()
+            const formInputValue = this.formEl.elements.forminput.value.slice(2)
             if(!formInputValue) return
-            handler(formInputValue.slice(2)) // key and value to update Model aka local storage
+            handler(formInputValue.trim()) // key and value to update Model aka local storage
         })
     }
 
@@ -396,6 +396,17 @@ Add`
         this.formInput.addEventListener('input', (e) => {
             this.formInput.value = this.formInput.value.toLowerCase()
         })
+    }
+
+    // =======================================================================================================================================
+
+    setDoneAction(command,todoObj) {
+        let actionDone 
+        if(command === 'add') actionDone = 'added'
+        if(command === 'edit') actionDone = 'edited'
+        if(command?.startsWith('del')) actionDone = 'deleted'
+        const actionString = `${actionDone} "${todoObj.name}"! <span>priority: ${todoObj.priority}, category: ${todoObj.category}, deadline: ${todoObj.deadline}, subtasks: ${todoObj.hasSubtasks}</span>` 
+        return actionString   
     }
 
     // =======================================================================================================================================

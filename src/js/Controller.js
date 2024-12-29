@@ -46,7 +46,7 @@ function runEventListeners() {
     // Visual.handleRemovingAllTodos(deleteTodos)
     Visual.handleRemovingTodo(deleteTodo) 
     Visual.handleEditingTodo(editTodo) 
-    Visual.formSubmit(handleFormSubmit) // handleFormSubmit is a general fn
+    Visual.formSubmit(handleFormSubmit) // 'handleFormSubmit' is a general fn; 'formSubmit' calls 'handleFormSubmit' with the string of the typed command
     Visual.handleArrowKeys(arrowKeysHandler)
     Visual.shiftCursorToTheEndAfterPasting()
     Visual.formatInput()
@@ -69,7 +69,9 @@ function arrowKeysHandler(command, activeEl) {
 
 // =======================================================================================================================================
 
-function handleFormSubmit(value) {
+function handleFormSubmit(value) { // value here is the string of the typed command with the first '> ' sliced out
+    console.log(value)
+
     if(Logic.state.isEditMode) { // editing 
         const indexToChange = Logic.getStateTodos().indexOf(Logic.getOldValue())
         Visual.updateTodoElement(document.querySelector(`.item:nth-child(${indexToChange+1})`), value)
@@ -78,23 +80,19 @@ function handleFormSubmit(value) {
         Visual.removeEditingMode() // change H2, change form btn, and dehighlight all todos
         Visual.clearFormInput()
         Logic.setEditMode(false)
-    } else { // adding
+    } else { // not editing
         const [command, todoObj] = Logic.makeTodoObject(value)
         console.log(command, todoObj)
-        if(!command) {
+        if(!command) {  
             Visual.showSystemMessage(todoObj.msg)
         }
-        if(command === 'add') {
-            todoObj.order = Logic.getStateTodos().length+1  // adding its number
+        if(command === 'add') { 
+            todoObj.order = Logic.getStateTodos().length+1  // adding its number (maybe it's not necessary)
             Logic.pushToDo(todoObj)  // pushing todo to Model's state
             Logic.pushRecentCommand(todoObj.command) // pushing recent command to Model's state
             Logic.saveToLS('state', JSON.stringify(Logic.getState()), 'reference') // pushing Model's state to local storage
-            let actionDone 
-            if(command === 'add') actionDone = 'added'
-            if(command === 'edit') actionDone = 'edited'
-            if(command?.startsWith('del')) actionDone = 'deleted'
-            const actionString = `${actionDone} "${todoObj.name}"! <span>priority: ${todoObj.priority}, category: ${todoObj.category}, deadline: ${todoObj.deadline}, subtasks: ${todoObj.hasSubtasks}</span>`
-            Visual.showSystemMessage(actionString)
+            const actionString = Visual.setDoneAction(command, todoObj)  // this is to show system message (see next line)
+            Visual.showSystemMessage(actionString) // showing system message in the UI (underneath the input)
             Visual.renderToDo(todoObj)   // creating a DOM element and appending it
         } else {
             console.log(`received other command, not 'add'`)
