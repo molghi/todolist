@@ -317,12 +317,12 @@ class View {
     handleEditingTodo(handler) {
         this.itemsWrapperEl.addEventListener('click', (e) => {
             if(!e.target.closest('.item__btn--edit')) return
-            this.changeH2('edit mode') // changing H2
-            this.changeFormBtn('edit mode') // changing form btn: + Add --> Edit
+            // this.changeH2('edit mode') // changing H2
+            // this.changeFormBtn('edit mode') // changing form btn: + Add --> Edit
             const valueToEdit = e.target.closest('.item').querySelector('.item__name').textContent
-            this.formInput.value = valueToEdit // bringing the value to form
-            this.formInput.focus()
-            this.highlightTodo('highlight', e.target.closest('.item')) // highlight it visually
+            // this.formInput.value = valueToEdit // bringing the value to form
+            // this.formInput.focus()
+            // this.highlightTodo('highlight', e.target.closest('.item')) // highlight it visually
             handler(valueToEdit)
         })
     }
@@ -465,7 +465,7 @@ Add`
     // =======================================================================================================================================
 
     setInputValue(value) {
-        this.formInput.value = value
+        this.formInput.value = `> ${value}`
     }
 
     // =======================================================================================================================================

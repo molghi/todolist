@@ -74,7 +74,7 @@ class Model {
     parseCommandString(string) {
         let command = string.split(' ')[0]
         const todoObj = {}
-        if(command !== 'add') return [command, null]
+        if(command !== 'add' && command !== 'edit') return [command, null]
 
         if(!this.state.commands.includes(command)) {
             command = null
@@ -125,7 +125,7 @@ class Model {
     parseName(string, parsedCommand) { // returns an array: name value and msg value
         if(string === parsedCommand) return [null, 'error: no task name was passed']
         if(string.slice(4).startsWith('-')) return [null, 'error: no task name was passed']
-        if(parsedCommand === 'add') {
+        if(parsedCommand === 'add' || parsedCommand === 'edit') {
             const indexOfFirstSpace = string.indexOf(' ') > 0 ? string.indexOf(' ') : string.length
             const indexOfFirstFlag = string.indexOf('-') > 0 ? string.indexOf('-') : string.length
             const name = string.slice(indexOfFirstSpace, indexOfFirstFlag).trim()
@@ -231,10 +231,32 @@ class Model {
         this.state.isEditMode = booleanFlag
     }
 
-    readjustIndices() {
-        this.state.todos.forEach(todo => {
-            todo.order -= 1
-        })
+    getTodoObjString(index) {
+        const todoObj = this.state.todos[Number(index)-1]
+        const priority = todoObj.priority ? ` --prio ${todoObj.priority}` : ''
+        const category = todoObj.category ? ` --cat ${todoObj.category}` : ''
+        const deadline = todoObj.deadline ? ` --dead ${todoObj.deadline}` : ''
+        const isCompleted = todoObj.isCompleted ? ` --finished ${todoObj.isCompleted}` : ''
+        const subtasks = todoObj.subtasks.length > 0 ? ` --sub ${todoObj.subtasks.map(x => x.name).join(', ')}` : ''
+        return [`edit ${todoObj.name}${priority}${category}${deadline}${isCompleted}${subtasks}`, todoObj.name]
+    }
+
+    editTodo(newObj) {
+        console.log(this.state.oldValue)
+        const indexToEdit = this.state.todos.findIndex(x => x.name === this.state.oldValue)
+        const todoToEdit = this.state.todos[indexToEdit]
+        for(let i = 0; i < Object.keys(newObj).length; i++) { // iterating through newObj...
+            const newObjKey = Object.keys(newObj)[i]
+            if(newObjKey === 'created') continue        // I don't allow it to be edited
+            if(newObjKey === 'command') continue        // I don't allow it to be edited
+            if(newObjKey === 'id') continue             // I don't allow it to be edited
+            if(newObj[newObjKey] === null) continue     // if it's null, no reassigning as well
+            if(newObjKey === 'subtasks' && newObj.subtasks.length === todoToEdit.subtasks.length) continue    // if subtasks length is the same, no reassigning
+            if(newObj[newObjKey] === todoToEdit[newObjKey]) continue                                          // if two values are the same, no reassigning
+            todoToEdit[newObjKey] = newObj[newObjKey]
+            console.log(`this property was changed: ${newObjKey}`)
+        }
+        console.log(this.state.todos)
     }
 }
 

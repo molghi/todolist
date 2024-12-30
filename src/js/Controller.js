@@ -47,8 +47,8 @@ function runEventListeners() {
 
     // Visual.handleFiltering()
     // Visual.handleRemovingAllTodos(deleteTodos)
-    // Visual.handleEditingTodo(editTodo) 
-    Visual.handleRemovingTodo(deleteTodo) 
+    Visual.handleEditingTodo(editTodoByBtn) 
+    Visual.handleRemovingTodo(deleteTodoByBtn) 
 }
 
 // =======================================================================================================================================
@@ -89,7 +89,7 @@ function handleFormSubmit(value, type='') { // value here is the string of the t
         command = 'clearall'
     }
 
-    console.log(value, ',', command)
+    // console.log(value, ',', command)
 
     if(!command) {  
         Visual.showSystemMessage('error: no command received')
@@ -101,6 +101,11 @@ function handleFormSubmit(value, type='') { // value here is the string of the t
         [command, todoObj] = Logic.makeTodoObject(value)
         addItem(command, todoObj)
         Visual.clearFormInput()
+        return
+    }
+
+    if(command === 'edit') {
+        editItem(value)
         return
     }
 
@@ -150,6 +155,7 @@ function changeColor(value) {
 
 // =======================================================================================================================================
 
+// delete one todo
 function deleteItem(value) {
     // console.log(value, ',', Logic.state.mode)
     if(Logic.state.mode === 'delete') {
@@ -198,7 +204,8 @@ function deleteItem(value) {
 
 // =======================================================================================================================================
 
-function deleteTodo(todoName) {
+// delete one todo by btn
+function deleteTodoByBtn(todoName) {
     Visual.setInputValue(`> are you sure you want to delete "${todoName}"? type y/n: `)
     Visual.itemToDelete = Array.from(document.querySelectorAll('.item')).find(x => x.querySelector('.item__name').textContent === todoName)
     handleFormSubmit(document.querySelector('.form-input').value, `click event`)
@@ -206,15 +213,7 @@ function deleteTodo(todoName) {
 
 // =======================================================================================================================================
 
-function pushTodos(newToDoValue) { // happens on form submission: 'handleFormSubmit' calls this fn with formInputValue
-    if(!newToDoValue) return
-    Logic.pushToDo(newToDoValue) // push to Model's state
-    Logic.pushTodosToLS() // push to local storage
-    Visual.toggleExtraFeatures()
-}
-
-// =======================================================================================================================================
-
+// delete all todos
 function deleteTodos(value) {
     if(value === 'y' || value === 'yes') {
         Visual.removeAllTodos()
@@ -230,17 +229,112 @@ function deleteTodos(value) {
         return
     }
     if(value.startsWith('clearall')) {
-        Visual.setInputValue('> delete all of your todos? type y/n: ')
+        Visual.setInputValue('> delete all of your todos? careful! type y/n: ')
         return
     }
     Visual.showSystemMessage('answer was not recognised')
     Visual.clearFormInput()
-    // if(!value.startsWith('y') || !value.startsWith('n')) return 
 }
 
 // =======================================================================================================================================
 
-function editTodo(valueToEdit) {
-    Logic.setOldValue(valueToEdit)
-    Logic.setEditMode(true) // we clicked the Edit btn so the mode is Edit now...
+function pushTodos(newToDoValue) { // happens on form submission: 'handleFormSubmit' calls this fn with formInputValue
+    if(!newToDoValue) return
+    Logic.pushToDo(newToDoValue) // push to Model's state
+    Logic.pushTodosToLS() // push to local storage
+    Visual.toggleExtraFeatures()
+}
+
+// =======================================================================================================================================
+
+function editTodoByBtn(valueToEdit) {
+    // console.log(`click click`)
+    // console.log(valueToEdit)
+    const itsIndexUI = [...document.querySelectorAll('.item__name')].find(x => x.textContent === valueToEdit)?.previousElementSibling.textContent
+    // console.log(itsIndexUI)
+    editItem(`edit ${itsIndexUI}`)
+    Visual.focusInput()
+    // Logic.setOldValue(valueToEdit)
+    // Logic.setEditMode(true) // we clicked the Edit btn so the mode is Edit now...
+}
+
+// =======================================================================================================================================
+
+function editItem(value) {
+    console.log(value)
+    let params, name
+    let valueMinusCommand = value.slice(value.indexOf('edit ')+5).trim()
+
+    if(valueMinusCommand.includes(' ')) { // then it is either 'edit 3 -p high' or 'edit buy bread -c food -p high'
+        valueMinusCommand = valueMinusCommand.slice(0, valueMinusCommand.indexOf(' '))
+        params = value.slice(value.indexOf(valueMinusCommand)+1+valueMinusCommand.length)
+    }
+
+    if(!valueMinusCommand) {
+        Visual.showSystemMessage('error: edit called with no value')
+        Visual.clearFormInput()
+        return
+    }
+    
+    if(Number.isNaN(Number(valueMinusCommand))) {
+        // console.log(`it wasn't an index after 'edit' -- it was a todo name -- meaning I am submitting the value having edited it and I need to capture it`)
+        // check if such a name exists in the UI
+        const allTodoNames = [...document.querySelectorAll('.item__name')].map(itemEl => itemEl.textContent)
+        name = value.slice(value.indexOf(' '), value.indexOf('-') > 0 ? value.indexOf('-') : value.length).trim()
+        params = value.slice(value.indexOf(name)+name.length+1)
+        if(!allTodoNames.includes(Logic.getOldValue())) return Visual.showSystemMessage('error: name to edit was not found')
+        // console.log(`must parse this new value (make an obj out of it): ${value}`)
+        const [command, todoObj] = Logic.parseCommandString(value)
+        // console.log(command, todoObj)
+        Logic.editTodo(todoObj)
+        Logic.saveToLS('state', JSON.stringify(Logic.getState()), 'reference') // pushing Model's state to local storage
+        Visual.clearFormInput()
+        Visual.removeAllTodos() // removing all to re-render
+        Logic.getState().todos.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+        return
+    }
+
+    console.log(value)
+    console.log(valueMinusCommand)
+    console.log(params)
+    console.log(name)
+
+    // validate input
+    const allItemNumbers = [...document.querySelectorAll('.item__number')].map(itemEl => itemEl.textContent)
+    if(!allItemNumbers.includes(valueMinusCommand)) {
+        Visual.showSystemMessage('error: item index does not exist')
+        Visual.clearFormInput()
+        return
+    }
+
+
+    if(!params) {
+        // example: I type 'edit 3' ... OR! I click on the edit btn
+        console.log(`no params, bringing all of it into the input`)
+        // Logic.setEditMode(true)   // (edit mode on) 
+        const [todoObjString, todoNameOld] = Logic.getTodoObjString(valueMinusCommand) // to bring this entire todo to the input 
+        Logic.setOldValue(todoNameOld) // in case if I change the name to a new one, to be able to find it
+        Visual.setInputValue(todoObjString)
+        // edit it there and submit 
+        // Logic.setEditMode(false)   // (edit mode off)
+        // parse it
+        // change it in the state/LS, and re-render UI
+    } else {
+        // example: I type 'edit 3 -p medium' ...
+        console.log(`params are there, no bringing to the input`)
+        const itsName = [...document.querySelectorAll('.item__number')].find(x => x.textContent === valueMinusCommand)?.nextElementSibling.textContent
+        const properCommand = value.replace(valueMinusCommand, itsName)
+        Logic.setOldValue(itsName) // in case if I change the name to a new one, to be able to find it
+        const [command, todoObj] = Logic.parseCommandString(properCommand) 
+        Logic.editTodo(todoObj)
+        Logic.saveToLS('state', JSON.stringify(Logic.getState()), 'reference') // pushing Model's state to local storage
+        Visual.clearFormInput()
+        Visual.removeAllTodos() // removing all to re-render
+        Logic.getState().todos.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+        // Logic.setEditMode(true)   // (edit mode on) 
+        // no bringing to the input happens
+        // submit, parse it, change the priority of the 3rd todo to medium (or read flags and modify todoObj), 
+        // Logic.setEditMode(false)   // (edit mode off)
+        // change it in the state/LS, and re-render UI
+    }
 }
