@@ -123,8 +123,9 @@ class Model {
     // ================================================================================================
 
     parseName(string, parsedCommand) { // returns an array: name value and msg value
+        // console.log(string, parsedCommand)
         if(string === parsedCommand) return [null, 'error: no task name was passed']
-        if(string.slice(4).startsWith('-')) return [null, 'error: no task name was passed']
+        if(string.slice(4).trim().startsWith('-')) return [null, 'error: no task name was passed']
         if(parsedCommand === 'add' || parsedCommand === 'edit') {
             const indexOfFirstSpace = string.indexOf(' ') > 0 ? string.indexOf(' ') : string.length
             const indexOfFirstFlag = string.indexOf('-') > 0 ? string.indexOf('-') : string.length
@@ -164,7 +165,7 @@ class Model {
                 return
             }
             if(property === 'isCompleted') { // isCompleted is a special case #2
-                object[property] = Boolean(flagValue)
+                object[property] = flagValue === 'true' ? true : false
                 return
             }
             object[property] = flagValue === '' ? null : flagValue
@@ -242,7 +243,8 @@ class Model {
     }
 
     editTodo(newObj) {
-        console.log(this.state.oldValue)
+        // console.log(this.state.oldValue)
+        // console.log(newObj)
         const indexToEdit = this.state.todos.findIndex(x => x.name === this.state.oldValue)
         const todoToEdit = this.state.todos[indexToEdit]
         for(let i = 0; i < Object.keys(newObj).length; i++) { // iterating through newObj...
@@ -256,7 +258,7 @@ class Model {
             todoToEdit[newObjKey] = newObj[newObjKey]
             console.log(`this property was changed: ${newObjKey}`)
         }
-        console.log(this.state.todos)
+        // console.log(this.state.todos)
     }
 
     parseFilterString(string) {

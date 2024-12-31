@@ -44,6 +44,7 @@ function runEventListeners() {
     Visual.formatInput() // to make sure that '> ' at the beginning of the input is undeletable
     Visual.deUppercaseInput() // I allow no uppercase to be typed in
     Visual.shiftCursorToTheEndAfterPasting()  // happens upon the 'paste' event: shifts the cursor in the input field to the end of what's in the input field
+    Visual.handleCompletingTodo(completeTodoByBtn)
 
     // Visual.handleFiltering()
     // Visual.handleRemovingAllTodos(deleteTodos)
@@ -279,15 +280,12 @@ function editItem(value) {
     }
     
     if(Number.isNaN(Number(valueMinusCommand))) {
-        // console.log(`it wasn't an index after 'edit' -- it was a todo name -- meaning I am submitting the value having edited it and I need to capture it`)
         // check if such a name exists in the UI
         const allTodoNames = [...document.querySelectorAll('.item__name')].map(itemEl => itemEl.textContent)
         name = value.slice(value.indexOf(' '), value.indexOf('-') > 0 ? value.indexOf('-') : value.length).trim()
         params = value.slice(value.indexOf(name)+name.length+1)
         if(!allTodoNames.includes(Logic.getOldValue())) return Visual.showSystemMessage('error: name to edit was not found')
-        // console.log(`must parse this new value (make an obj out of it): ${value}`)
         const [command, todoObj] = Logic.parseCommandString(value)
-        // console.log(command, todoObj)
         Logic.editTodo(todoObj)
         Logic.saveToLS('state', JSON.stringify(Logic.getState()), 'reference') // pushing Model's state to local storage
         Visual.clearFormInput()
@@ -296,11 +294,6 @@ function editItem(value) {
         return
     }
 
-    console.log(value)
-    console.log(valueMinusCommand)
-    console.log(params)
-    console.log(name)
-
     // validate input
     const allItemNumbers = [...document.querySelectorAll('.item__number')].map(itemEl => itemEl.textContent)
     if(!allItemNumbers.includes(valueMinusCommand)) {
@@ -308,7 +301,6 @@ function editItem(value) {
         Visual.clearFormInput()
         return
     }
-
 
     if(!params) {
         // example: I type 'edit 3' ... OR! I click on the edit btn
@@ -394,4 +386,27 @@ function filterTodos(value) {
     const flagsString = Object.keys(parsedFlags).join(', ') 
     Visual.showSystemMessage(`filtered by ${flagsString} (type "fil all" to remove filter)`)
     Visual.clearFormInput()
+}
+
+// =======================================================================================================================================
+
+function completeTodoByBtn(indexToEdit, type='majortask') {
+    if(type===`subtask`) {
+        const [majortaskIndex, subtaskIndex] = indexToEdit.split('.')
+        const todo = Logic.getState().todos.find((x,i) => i === majortaskIndex-1)
+        todo.subtasks[subtaskIndex-1].isCompleted = !todo.subtasks[subtaskIndex-1].isCompleted
+        // console.log(todo.subtasks.map(x => x.isCompleted))
+        Logic.saveToLS('state', JSON.stringify(Logic.getState()), 'reference') // pushing Model's state to local storage
+        Visual.removeAllTodos() // removing all to re-render
+        Logic.getState().todos.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+        const allSubtaskEl = [...document.querySelectorAll('.item__subtask')].find(x => x.querySelector('td:nth-child(2)').textContent === indexToEdit)
+        if(todo.subtasks[subtaskIndex-1].isCompleted) allSubtaskEl.querySelector('td:nth-child(3)').classList.add('finished')
+        else allSubtaskEl.querySelector('td:nth-child(3)').classList.remove('finished')
+        return 
+    }
+    const todo = Logic.getState().todos.find((x,i) => i === indexToEdit-1)
+    todo.isCompleted = !todo.isCompleted
+    Logic.saveToLS('state', JSON.stringify(Logic.getState()), 'reference') // pushing Model's state to local storage
+    Visual.removeAllTodos() // removing all to re-render
+    Logic.getState().todos.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
 }

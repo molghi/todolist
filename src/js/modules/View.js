@@ -185,7 +185,7 @@ class View {
 
         // Map over subtasks and generate HTML rows
         const subtasksEl = subtasks?.map((subtask, i) => {
-    return `<tr class="item__subtask">
+    return `<tr class="item__subtask" data-finished="${subtask.isCompleted}">
         <td>----</td>
         <td>${order}.${i+1}</td>
         <td class="item__subtask-name" title="${subtask.name}">${subtask.name}</td>
@@ -203,7 +203,7 @@ class View {
         </td>
     </tr>`;
 }).join('')
-
+        const priorityStyles = priority === null || priority === 'low' ? `style="opacity: 0.35;"` : priority === 'medium' ? `style="opacity: 0.65;"` : null
         // Create the item HTML structure
         newToDo.innerHTML = `
         <div class="item__holder">
@@ -213,7 +213,7 @@ class View {
                     <tr>
                         <td class="item__number">${order}</td>
                         <td class="item__name" title="${name}">${name}</td>
-                        <td class="item__priority" title="priority: ${priority || 'null'}"><span>priority:</span> ${priority || 'null'}</td>
+                        <td class="item__priority" title="priority: ${priority || 'null'}"><span>priority:</span> <span ${priorityStyles}>${priority || 'null'}</span></td>
                         <td class="item__category" title="category: ${category || 'null'}"><span>category:</span> ${category || 'null'}</td>
                         <td class="item__deadline" title="deadline: ${deadline || 'null'}"><span>deadline:</span> ${deadline || 'null'}</td>
                         <td class="item__has-subtasks" title="subtasks: ${hasSubtasks ? 'true' : 'false'}"><span>subtasks:</span> ${hasSubtasks ? 'true' : 'false'}</td>
@@ -331,6 +331,24 @@ class View {
             // this.formInput.focus()
             // this.highlightTodo('highlight', e.target.closest('.item')) // highlight it visually
             handler(valueToEdit)
+        })
+    }
+
+    // =======================================================================================================================================
+
+    handleCompletingTodo(handler) {
+        this.itemsWrapperEl.addEventListener('click', (e) => {
+            if(!e.target.closest('.item__btn--complete') && !e.target.closest(`.item__subtask-btn--complete`)) return
+            let indexToEdit, type
+            if(e.target.closest('.item__btn--complete')) {
+                indexToEdit = e.target.closest('.item').querySelector('.item__number').textContent
+                type = 'majortask'
+            }
+            if(e.target.closest('.item__subtask-btn--complete')) {
+                indexToEdit = e.target.closest('.item__subtask').querySelector('td:nth-child(2)').textContent
+                type = 'subtask'
+            }
+            handler(indexToEdit, type)
         })
     }
 
