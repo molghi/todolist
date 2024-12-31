@@ -170,6 +170,13 @@ class View {
         const newToDo = document.createElement('div')
         newToDo.classList.add('item')
 
+        newToDo.setAttribute('data-name', name)
+        newToDo.setAttribute('data-finished', isCompleted)
+        newToDo.setAttribute('data-priority', priority)
+        newToDo.setAttribute('data-deadline', deadline)
+        newToDo.setAttribute('data-category', category)
+        newToDo.setAttribute('data-subtasks', hasSubtasks)
+
         // Format the creation date
         const itsDate = `${new Date(created).getFullYear()}:${new Date(created).getMonth()+1}:${new Date(created).getDate().toString().padStart(2,0)}`
 
@@ -180,9 +187,9 @@ class View {
         const subtasksEl = subtasks?.map((subtask, i) => {
     return `<tr class="item__subtask">
         <td>----</td>
-        <td>${i+1}.</td>
-        <td title="${subtask.name}">${subtask.name}</td>
-        <td title="${subtask.isCompleted}"><span>completed:</span> ${subtask.isCompleted}</td>
+        <td>${order}.${i+1}</td>
+        <td class="item__subtask-name" title="${subtask.name}">${subtask.name}</td>
+        <td title="${subtask.isCompleted}"><span>finished:</span> ${subtask.isCompleted}</td>
         <td class="item__subtask-btns">
             <button class="item__subtask-btn item__subtask-btn--complete" title="Complete">
                 <i class="fa-solid fa-circle-check"></i>
@@ -206,12 +213,12 @@ class View {
                     <tr>
                         <td class="item__number">${order}</td>
                         <td class="item__name" title="${name}">${name}</td>
-                        <td class="item__priority" title="priority: ${priority || 'unset'}"><span>priority:</span> ${priority || 'unset'}</td>
-                        <td class="item__category" title="category: ${category || 'unset'}"><span>category:</span> ${category || 'unset'}</td>
-                        <td class="item__deadline" title="deadline: ${deadline || 'unset'}"><span>deadline:</span> ${deadline || 'unset'}</td>
-                        <td class="item__has-subtasks" title="subtasks: ${hasSubtasks ? 'yes' : 'none'}"><span>subtasks:</span> ${hasSubtasks ? 'yes' : 'none'}</td>
+                        <td class="item__priority" title="priority: ${priority || 'null'}"><span>priority:</span> ${priority || 'null'}</td>
+                        <td class="item__category" title="category: ${category || 'null'}"><span>category:</span> ${category || 'null'}</td>
+                        <td class="item__deadline" title="deadline: ${deadline || 'null'}"><span>deadline:</span> ${deadline || 'null'}</td>
+                        <td class="item__has-subtasks" title="subtasks: ${hasSubtasks ? 'true' : 'false'}"><span>subtasks:</span> ${hasSubtasks ? 'true' : 'false'}</td>
                         ${subtaskNum}
-                        <td class="item__is-completed" title="completed: ${isCompleted}"><span>completed:</span> ${isCompleted}</td>
+                        <td class="item__is-completed" title="finished: ${isCompleted}"><span>finished:</span> ${isCompleted}</td>
                         <td class="item__date" title="creation date: ${itsDate}"><span>created:</span> ${itsDate}</td>
                     </tr>
                     </tbody>
@@ -474,6 +481,15 @@ Add`
         while(this.itemsWrapperEl.firstChild) { 
                 this.itemsWrapperEl.removeChild(this.itemsWrapperEl.firstChild)
             }
+    }
+
+    // =======================================================================================================================================
+
+    toggleTodo(todoEl, flag='hide') {
+        if(flag==='show') {
+            return todoEl.classList.remove('hidden')
+        }
+        todoEl.classList.add('hidden')
     }
 
     // =======================================================================================================================================

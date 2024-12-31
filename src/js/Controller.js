@@ -124,6 +124,11 @@ function handleFormSubmit(value, type='') { // value here is the string of the t
         deleteTodos(value)
         return
     }
+
+    if(command === 'filter' || command === 'fil') {
+        filterTodos(value)
+        return
+    }
     
     Visual.clearFormInput()
     Visual.showSystemMessage('error: command does not exist, type "manual" or "man" to see the manual')
@@ -248,10 +253,7 @@ function pushTodos(newToDoValue) { // happens on form submission: 'handleFormSub
 // =======================================================================================================================================
 
 function editTodoByBtn(valueToEdit) {
-    // console.log(`click click`)
-    // console.log(valueToEdit)
     const itsIndexUI = [...document.querySelectorAll('.item__name')].find(x => x.textContent === valueToEdit)?.previousElementSibling.textContent
-    // console.log(itsIndexUI)
     editItem(`edit ${itsIndexUI}`)
     Visual.focusInput()
     // Logic.setOldValue(valueToEdit)
@@ -337,4 +339,59 @@ function editItem(value) {
         // Logic.setEditMode(false)   // (edit mode off)
         // change it in the state/LS, and re-render UI
     }
+}
+
+// =======================================================================================================================================
+
+function filterTodos(value) {
+    
+    const valueWithoutCommand = value.includes(' ') ? value.slice(value.indexOf(' ')+1) : null
+    if(!valueWithoutCommand) {
+        Visual.showSystemMessage('error: filter called with no value')
+        Visual.clearFormInput()
+        return
+    }
+
+    if(valueWithoutCommand === 'all') {
+        [...document.querySelectorAll('.item')].forEach(x => Visual.toggleTodo(x, 'show')) // showing all
+        Visual.showSystemMessage('filter cleared')
+        Visual.clearFormInput()
+        return
+    }
+    
+    if(!valueWithoutCommand.trim().startsWith('-')) {
+        Visual.showSystemMessage('error: you must use flags to filter, example: "fil -n buy milk -c food"')
+        Visual.clearFormInput()
+        return
+    }
+
+    const parsedFlags = Logic.parseFilterString(valueWithoutCommand)
+
+    if(Object.keys(parsedFlags).length === 0) {
+        Visual.showSystemMessage('error: filtering returned no results')
+        Visual.clearFormInput()
+        return
+    }
+    
+    const allTodoEls = [...document.querySelectorAll('.item')]
+    const todosSatisfyingCondition = allTodoEls.filter(todoInUI => {
+        const temp = []
+        Object.entries(parsedFlags).forEach(entryArr => {
+            return todoInUI.getAttribute(`data-${entryArr[0]}`)?.includes(`${entryArr[1]}`) && temp.push(todoInUI)
+        })
+        if (temp.length === Object.keys(parsedFlags).length) return todoInUI
+    })
+    
+    if(todosSatisfyingCondition.length === 0) {
+        Visual.showSystemMessage('error: filtering returned no results')
+        Visual.clearFormInput()
+        return
+    }
+    
+    [...document.querySelectorAll('.item')].forEach(x => Visual.toggleTodo(x, 'show')) // showing all
+    const todosNotSatisfyingCondition = allTodoEls.filter(todo => !todosSatisfyingCondition.includes(todo))
+    todosNotSatisfyingCondition.forEach(x => Visual.toggleTodo(x)) // hiding some
+    const flagsString = Object.keys(parsedFlags).join(', ') 
+    Visual.showSystemMessage(`filtered by ${flagsString} (type "fil all" to remove filter)`)
+    Visual.clearFormInput()
 }

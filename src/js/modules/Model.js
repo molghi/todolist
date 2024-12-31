@@ -258,6 +258,49 @@ class Model {
         }
         console.log(this.state.todos)
     }
+
+    parseFilterString(string) {
+        const parsedFlags = {}
+        if(string.includes('--name') || string.includes('-n ')) {
+            const flagLength = string.includes('--name') ? '--name' : '-n'
+            let flagValue = string.slice(string.indexOf(flagLength)+flagLength.length+1)
+            if(flagValue.includes('-')) flagValue = flagValue.slice(0, flagValue.indexOf('-'))
+            if(flagValue.trim()) parsedFlags.name = flagValue.trim()
+        }
+        if(string.includes('--finished') || string.includes('-f ')) {
+            const flagLength = string.includes('--finished') ? '--finished' : '-f'
+            let flagValue = string.slice(string.indexOf(flagLength)+flagLength.length+1)
+            if(flagValue.includes('-')) flagValue = flagValue.slice(0, flagValue.indexOf('-'))
+            if(flagValue.trim() === 'true' || flagValue.trim() === 'done') parsedFlags.finished = 'true'
+            if(flagValue.trim() === 'false' || flagValue.trim() === 'undone') parsedFlags.finished = 'false'
+        }
+        if(string.includes('--prio') || string.includes('-p ')) {
+            const flagLength = string.includes('--prio') ? '--prio' : '-p'
+            let flagValue = string.slice(string.indexOf(flagLength)+flagLength.length+1)
+            if(flagValue.includes('-')) flagValue = flagValue.slice(0, flagValue.indexOf('-'))
+            if(flagValue.trim()) parsedFlags.priority = flagValue.trim()
+        }
+        if(string.includes('--dead') || string.includes('-d ')) {
+            const flagLength = string.includes('--dead') ? '--dead' : '-d'
+            let flagValue = string.slice(string.indexOf(flagLength)+flagLength.length+1)
+            if(flagValue.includes('-')) flagValue = flagValue.slice(0, flagValue.indexOf('-'))
+            if(flagValue.trim()) parsedFlags.deadline = flagValue.trim()
+        }
+        if(string.includes('--cat') || string.includes('-c ')) {
+            const flagLength = string.includes('--cat') ? '--cat' : '-c'
+            let flagValue = string.slice(string.indexOf(flagLength)+flagLength.length+1)
+            if(flagValue.includes('-')) flagValue = flagValue.slice(0, flagValue.indexOf('-'))
+            if(flagValue.trim()) parsedFlags.category = flagValue.trim()
+        }
+        if(string.includes('--sub') || string.includes('-s ')) {
+            const flagLength = string.includes('--sub') ? '--sub' : '-s'
+            let flagValue = string.slice(string.indexOf(flagLength)+flagLength.length+1)
+            if(flagValue.includes('-')) flagValue = flagValue.slice(0, flagValue.indexOf('-'))
+            if(flagValue.trim()) parsedFlags.subtasks = flagValue.trim()
+        }
+        return parsedFlags
+    }
+
 }
 
 export default Model
