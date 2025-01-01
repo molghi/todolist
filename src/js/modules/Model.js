@@ -7,7 +7,7 @@ class Model {
         isSortMode: false,
         sortModeCriterion: 'default',
         oldValue: '',  // I need it in Editing mode
-        commands: ['add', 'edit', 'delete', 'del', 'filter', 'fil', 'changecol', 'cc', 'manual', 'man', 'import', 'export', 'clearall'],
+        commands: ['add', 'edit', 'delete', 'del', 'filter', 'fil', 'changecol', 'cc', 'manual', 'man', 'import', 'export', 'clearall', 'sort'],
         flags: [
             '--name', // name
             '-n',

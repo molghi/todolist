@@ -455,27 +455,44 @@ Add`
 
     // to make sure that '> ' at the beginning of the input is undeletable
     formatInput() {
+        const input = this.formInput;
         ['input', 'keydown'].forEach(ev => {
-            this.formInput.addEventListener(ev, (e) => {
-                if(ev === 'keydown') {
+            input.addEventListener(ev, (e) => {
+                if(ev === 'keydown') {  // if it's an 'keydown' event:
                     if(e.code === 'KeyZ' && e.metaKey) { // tracking the undo operation
                         setTimeout(() => { // I need timeout with 1ms to wait until the undo operation of ctrl+Z is over
-                            if(this.formInput.value.slice(2).includes('> ')) {
-                                const sliced = this.formInput.value.slice(2) // slicing the first '> ' out
+                            if(input.value.slice(2).includes('> ')) {
+                                const sliced = input.value.slice(2) // slicing the first '> ' out
                                 const extraPrefixIndex = sliced.indexOf('> ')
                                 if (extraPrefixIndex !== -1) { // Detect extra prefixes
-                                    this.formInput.value = '> ' + sliced.slice(extraPrefixIndex + 2); // Remove extras
+                                    input.value = '> ' + sliced.slice(extraPrefixIndex + 2); // Remove extras
                                 }
                             }
                         }, 10) // the flickering in the input happens because of this 10ms, which I must have so the browser could bring back the before-the-change/deletion value before I capture it -- else I capture the input value before the browser brings it back (and it's effectively null) -- I guess I will have to put up with that... which is a little annoying
                     }
                 }
-                if(this.formInput.value.length < 3 || !this.formInput.value.startsWith('> ')) {
-                    const currentContent = this.formInput.value.slice(2) // Preserve existing content beyond the prefix
-                    this.formInput.value = '> ' + currentContent
-                    this.shiftCursorToTheEndNow()
-                    this.shiftCursorToTheEndAfterPasting()
-                } 
+
+                // if it's an 'input' event:
+                if (!input.value.startsWith('> ')) {
+                    const selectionStart = input.selectionStart;
+                    const preservedContent = input.value.replace(/^> /, ''); // Remove any stray prefix
+                    input.value = '> ' + preservedContent;
+
+                    // Adjust cursor position after prefix restoration
+                    const cursorOffset = 2; // Length of '> '
+                    // Cursor Adjustment below: Using 'setSelectionRange' to position the cursor correctly after restoring the prefix, taking into account the length of the prefix:
+                    input.setSelectionRange(selectionStart + cursorOffset, selectionStart + cursorOffset);
+                }
+
+                // if(input.value.length < 3 || !input.value.startsWith('> ')) {
+                //     let currentContent
+                //     console.log(input.value)
+                //     currentContent = input.value.slice(2) // Preserve existing content beyond the prefix
+                //     input.value = '> ' + currentContent
+                //     this.shiftCursorToTheEndNow()
+                //     this.shiftCursorToTheEndAfterPasting()
+                // } 
+
             })
         })
     }
@@ -486,6 +503,20 @@ Add`
     deUppercaseInput() {
         this.formInput.addEventListener('input', (e) => {
             this.formInput.value = this.formInput.value.toLowerCase()
+        })
+    }
+
+    // =======================================================================================================================================
+
+    trackTabPress(handler) {
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'Tab' && document.activeElement.classList.contains('form-input')) {
+                e.preventDefault()
+                const sliced = this.formInput.value.slice(2)   // '> ' sliced out
+                if(sliced.includes(' ')) return handler(null)
+                if(sliced.startsWith('-')) return handler(null)
+                return handler(sliced)
+            }
         })
     }
 
