@@ -108,7 +108,29 @@
 
 
         .item {
-            // transition: all .2s;
+            &__number {
+                min-width: 16.5px;
+                // min-width: 25.5px;
+            }
+            &__priority, &__deadline, &__has-subtasks, &__is-completed, &__category {
+                min-width: 145px;
+                max-width: 145px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            // &__priority {
+            //     min-width: 130px;
+            //     max-width: 130px;
+            // }
+            // &__deadline, &__has-subtasks, &__is-completed {
+            //     min-width: 122px;
+            //     max-width: 122px;
+            // }
+            // &__category {
+            //     min-width: 140px;
+            //     max-width: 140px;
+            // }
+
             &[data-finished="true"] {
                 .item__name {
                     text-decoration: line-through;
@@ -151,8 +173,8 @@
                     &:nth-child(2) {
                         flex-shrink: 0;
                         text-align: left;
-                        flex-basis: 135px;
-                        max-width: 135px;
+                        flex-basis: 145px;
+                        max-width: 145px;
                         flex-grow: 1;
                     }
                     span:nth-child(1) {
@@ -197,6 +219,10 @@
             }
             
             &__subtask {
+                td:nth-child(4) {
+                    min-width: 122px;
+                    margin-right: auto;
+                }
                 margin-right: auto;
                 &[data-finished="true"] {
                     .item__subtask-name{
@@ -213,8 +239,8 @@
                 td:nth-child(3) {
                     flex-grow: 1;
                     flex-shrink: 0;
-                    flex-grow: 100px;
-                    max-width: 100px;
+                    flex-grow: 130px;
+                    max-width: 130px;
                 }
                 td span:nth-child(1) {
                     font-style: italic;
@@ -234,7 +260,7 @@
                 &-btns {
                     display: flex;
                     align-items: center;
-                    column-gap: 15px;
+                    column-gap: 20px;
                 }
             }
 

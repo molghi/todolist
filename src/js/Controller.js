@@ -130,6 +130,11 @@ function handleFormSubmit(value, type='') { // value here is the string of the t
         filterTodos(value)
         return
     }
+
+    if(command === 'sort') {
+        sortTodos(value)
+        return
+    }
     
     Visual.clearFormInput()
     Visual.showSystemMessage('error: command does not exist, type "manual" or "man" to see the manual')
@@ -143,6 +148,14 @@ function addItem(command, todoObj) {
     Logic.saveToLS('state', JSON.stringify(Logic.getState()), 'reference') // pushing Model's state to local storage
     const actionString = Visual.setDoneAction(command, todoObj)  // this is to show system message (see next line)
     Visual.showSystemMessage(actionString) // showing system message in the UI (underneath the input)
+
+    if(Logic.state.isSortMode) {
+        Visual.removeAllTodos() // removing all to re-render
+        Logic.getState().todos.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+        sortTodos(`sort ${Logic.state.sortModeCriterion}`)
+        return
+    }
+
     const index = Logic.getState().todos.length
     Visual.renderToDo(todoObj, index)   // creating a DOM element and appending it
 }
@@ -265,10 +278,18 @@ function editTodoByBtn(valueToEdit) {
 
 function editItem(value) {
     console.log(value)
-    let params, name
+    let params, name, properIndex
     let valueMinusCommand = value.slice(value.indexOf('edit ')+5).trim()
 
-    if(valueMinusCommand.includes(' ')) { // then it is either 'edit 3 -p high' or 'edit buy bread -c food -p high'
+    if(Logic.state.isSortMode) {
+        const valueAtIndex = [...document.querySelectorAll('.item__number')].find(x => x.textContent === valueMinusCommand.slice(0,valueMinusCommand.indexOf(' '))).nextElementSibling.textContent
+        properIndex = Logic.getProperIndex(valueAtIndex) + 1
+        console.log(`proper index: ${properIndex}`)
+        valueMinusCommand = valueMinusCommand.slice(valueMinusCommand.indexOf(' ')+1)
+        valueMinusCommand = `${properIndex} ` + valueMinusCommand
+    }
+
+    if(valueMinusCommand.includes(' ')) {   // it is either 'edit 3 -p high' or 'edit buy bread -c food -p high'
         valueMinusCommand = valueMinusCommand.slice(0, valueMinusCommand.indexOf(' '))
         params = value.slice(value.indexOf(valueMinusCommand)+1+valueMinusCommand.length)
     }
@@ -279,7 +300,7 @@ function editItem(value) {
         return
     }
     
-    if(Number.isNaN(Number(valueMinusCommand))) {
+    if(Number.isNaN(Number(valueMinusCommand))) {  // <-- runs after I brought the entire todo to the input and now I am submitting it 
         // check if such a name exists in the UI
         const allTodoNames = [...document.querySelectorAll('.item__name')].map(itemEl => itemEl.textContent)
         name = value.slice(value.indexOf(' '), value.indexOf('-') > 0 ? value.indexOf('-') : value.length).trim()
@@ -316,8 +337,15 @@ function editItem(value) {
     } else {
         // example: I type 'edit 3 -p medium' ...
         console.log(`params are there, no bringing to the input`)
-        const itsName = [...document.querySelectorAll('.item__number')].find(x => x.textContent === valueMinusCommand)?.nextElementSibling.textContent
-        const properCommand = value.replace(valueMinusCommand, itsName)
+        let itsName = [...document.querySelectorAll('.item__number')].find(x => x.textContent === valueMinusCommand)?.nextElementSibling.textContent
+        let properCommand = value.replace(valueMinusCommand, itsName)
+        if(Logic.state.isSortMode) {
+            properCommand = properCommand.slice(properCommand.indexOf('edit')+5) // slicing out 'edit '
+            const index = properCommand.slice(0, properCommand.indexOf(' '))
+            itsName = [...document.querySelectorAll('.item__number')].find(x => x.textContent === index)?.nextElementSibling.textContent
+            properCommand = properCommand.slice(properCommand.indexOf(' ')).trim() // slicing out index
+            properCommand = `edit ${properIndex} ${properCommand}`
+        }
         Logic.setOldValue(itsName) // in case if I change the name to a new one, to be able to find it
         const [command, todoObj] = Logic.parseCommandString(properCommand) 
         Logic.editTodo(todoObj)
@@ -325,6 +353,9 @@ function editItem(value) {
         Visual.clearFormInput()
         Visual.removeAllTodos() // removing all to re-render
         Logic.getState().todos.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+        if(Logic.state.isSortMode) {
+            sortTodos(`sort ${Logic.state.sortModeCriterion}`)
+        }
         // Logic.setEditMode(true)   // (edit mode on) 
         // no bringing to the input happens
         // submit, parse it, change the priority of the 3rd todo to medium (or read flags and modify todoObj), 
@@ -364,6 +395,13 @@ function filterTodos(value) {
         Visual.clearFormInput()
         return
     }
+
+    if(Logic.state.isSortMode) {
+        Logic.state.isSortMode = false
+        Logic.state.sortModeCriterion = 'default'
+        Visual.removeAllTodos() // removing all to re-render
+        Logic.getState().todos.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+    }
     
     const allTodoEls = [...document.querySelectorAll('.item')]
     const todosSatisfyingCondition = allTodoEls.filter(todoInUI => {
@@ -379,6 +417,8 @@ function filterTodos(value) {
         Visual.clearFormInput()
         return
     }
+
+    
     
     [...document.querySelectorAll('.item')].forEach(x => Visual.toggleTodo(x, 'show')) // showing all
     const todosNotSatisfyingCondition = allTodoEls.filter(todo => !todosSatisfyingCondition.includes(todo))
@@ -409,4 +449,76 @@ function completeTodoByBtn(indexToEdit, type='majortask') {
     Logic.saveToLS('state', JSON.stringify(Logic.getState()), 'reference') // pushing Model's state to local storage
     Visual.removeAllTodos() // removing all to re-render
     Logic.getState().todos.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+}
+
+// =======================================================================================================================================
+
+function sortTodos(value) {
+    Logic.state.isSortMode = true
+    const criterion = value.trim().split(' ')[1]
+    if(criterion === 'created' || criterion === 'default' || criterion === 'def') {   // DONE
+        Visual.showSystemMessage('sorted by "created" (default)')
+        Visual.clearFormInput()
+        Visual.removeAllTodos() // removing all to re-render
+        Logic.getState().todos.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+        Logic.state.isSortMode = false
+        Logic.state.sortModeCriterion = 'default'
+    }
+    else if(criterion === 'name') {
+        Visual.showSystemMessage('sorted by "name" (a to z) (type "sort def" to remove sorting)') 
+        Visual.clearFormInput()
+        Visual.removeAllTodos() // removing all to re-render
+        const newOrder = Logic.sortTodos('name')
+        newOrder.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+        Logic.state.sortModeCriterion = 'name'
+    }
+    else if(criterion === 'priority') {                      
+        Visual.showSystemMessage('sorted by "priority" (high to low) (type "sort def" to remove sorting)')
+        Visual.clearFormInput()
+        Visual.removeAllTodos() // removing all to re-render
+        const newOrder = Logic.sortTodos('priority')
+        newOrder.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+        Logic.state.sortModeCriterion = 'priority'
+    }
+    else if(criterion === 'category') {
+        Visual.showSystemMessage('sorted by "category" (a to z) (type "sort def" to remove sorting)') 
+        Visual.clearFormInput()
+        Visual.removeAllTodos() // removing all to re-render
+        const newOrder = Logic.sortTodos('category')
+        newOrder.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+        Logic.state.sortModeCriterion = 'category'
+    }
+    else if(criterion === 'subtasks') {   
+        Visual.showSystemMessage('sorted by "subtasks" (true to false) (type "sort def" to remove sorting)')
+        Visual.clearFormInput()
+        Visual.removeAllTodos() // removing all to re-render
+        const newOrder = Logic.sortTodos('subtasks')
+        newOrder.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+        Logic.state.sortModeCriterion = 'subtasks'
+    }
+    else if(criterion === 'finished') {   
+        Visual.showSystemMessage('sorted by "finished" (false to true) (type "sort def" to remove sorting)')
+        Visual.clearFormInput()
+        Visual.removeAllTodos() // removing all to re-render
+        const newOrder = Logic.sortTodos('finished')
+        newOrder.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+        Logic.state.sortModeCriterion = 'finished'
+    } 
+    else if(criterion === 'deadline') {
+        Visual.showSystemMessage('sorted by "deadline" (type "sort def" to remove sorting)')
+        console.log(`sort by deadline: from overdue to today to this week`)      // not really done
+        Visual.clearFormInput()
+        Visual.removeAllTodos() // removing all to re-render
+        const newOrder = Logic.sortTodos('deadline')
+        console.log(newOrder)
+        newOrder.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+        Logic.state.sortModeCriterion = 'deadline'
+    }
+    else {
+        Visual.showSystemMessage('sorting error: non-existing criterion (default state returned)')
+        Visual.clearFormInput()
+        Visual.removeAllTodos() // removing all to re-render
+        Logic.getState().todos.forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
+        Logic.state.sortModeCriterion = 'default'
+    }
 }

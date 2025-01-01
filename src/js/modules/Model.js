@@ -4,6 +4,8 @@ class Model {
     state = {
         todos: [],
         isEditMode: false,
+        isSortMode: false,
+        sortModeCriterion: 'default',
         oldValue: '',  // I need it in Editing mode
         commands: ['add', 'edit', 'delete', 'del', 'filter', 'fil', 'changecol', 'cc', 'manual', 'man', 'import', 'export', 'clearall'],
         flags: [
@@ -168,6 +170,13 @@ class Model {
                 object[property] = flagValue === 'true' ? true : false
                 return
             }
+            if(property === 'deadline') { // deadline is a special case #3
+                console.log(flagValue)
+                if(flagValue === 'today') flagValue = `${String(new Date().getDate()).padStart(2,0)}.${String(new Date().getMonth()+1).padStart(2,0)}`
+                if(flagValue === 'tomorrow') flagValue = `${String(new Date().getDate()+1).padStart(2,0)}.${String(new Date().getMonth()+1).padStart(2,0)}`
+                object[property] = flagValue === '' ? null : flagValue
+                return
+            }
             object[property] = flagValue === '' ? null : flagValue
         } 
 
@@ -179,45 +188,68 @@ class Model {
         this.state.recentCommands.push(command)
     }
 
+    // ================================================================================================
+
     getCommands() {
         return this.state.commands
     }
+
+    // ================================================================================================
+    
     getFlags() {
         return this.state.flags
     }
+
+    // ================================================================================================
 
     setOldValue(val) {
         this.state.oldValue = val
     }
 
+    // ================================================================================================
+
     saveToLS(key, value, type='primitive') {
         if(!key || !value) return
         LS.save(key, value)
     }
+    
+    // ================================================================================================
 
     getFromLS(key) {
         return LS.get(key)
     }
+    
+    // ================================================================================================
 
     removeItemFromLS(key) {
         return LS.remove(key)
     }
+    
+    // ================================================================================================
 
     pushToDo(todo) {
         this.state.todos.push(todo)
     }
+    
+    // ================================================================================================
 
     pushTodosToLS() {
         this.saveToLS('todos', JSON.stringify(this.state.todos), 'array')
     }
+    
+    // ================================================================================================
 
     removeTodos() {
         this.state.todos = []
     }
 
+    // ================================================================================================
+
     getStateTodos() {
         return this.state.todos
     }
+
+    // ================================================================================================
 
     removeTodo(index) {
         // console.log(this.state.todos.map(x => x.name).join(', '))
@@ -228,9 +260,13 @@ class Model {
         // console.log(this.state.todos.map(x => x.name).join(', '))
     }
 
+    // ================================================================================================
+
     setEditMode(booleanFlag) {
         this.state.isEditMode = booleanFlag
     }
+
+    // ================================================================================================
 
     getTodoObjString(index) {
         const todoObj = this.state.todos[Number(index)-1]
@@ -241,6 +277,8 @@ class Model {
         const subtasks = todoObj.subtasks.length > 0 ? ` --sub ${todoObj.subtasks.map(x => x.name).join(', ')}` : ''
         return [`edit ${todoObj.name}${priority}${category}${deadline}${isCompleted}${subtasks}`, todoObj.name]
     }
+
+    // ================================================================================================
 
     editTodo(newObj) {
         // console.log(this.state.oldValue)
@@ -260,6 +298,8 @@ class Model {
         }
         // console.log(this.state.todos)
     }
+
+    // ================================================================================================
 
     parseFilterString(string) {
         const parsedFlags = {}
@@ -301,6 +341,60 @@ class Model {
             if(flagValue.trim()) parsedFlags.subtasks = flagValue.trim()
         }
         return parsedFlags
+    }
+
+    // ================================================================================================
+
+    sortTodos(criterion) {
+        if(criterion === 'name') { // return sorted alphabetically: from  A to Z
+            return JSON.parse(JSON.stringify(this.state.todos)).sort((a,b) => a.name.localeCompare(b.name))   // JSON.parse- JSON.stringify allow to make a deep copy
+        }
+        if(criterion === 'category') { // return sorted alphabetically: from  A to Z
+            return JSON.parse(JSON.stringify(this.state.todos)).sort((a,b) => String(a.category).localeCompare(String(b.category)))
+        }
+        if(criterion === 'priority') {  // sort by priority: from high to low/null
+            const highs = this.state.todos.filter(todo => String(todo.priority) === 'high')
+            const mediums = this.state.todos.filter(todo => String(todo.priority).startsWith('med'))
+            const lows = this.state.todos.filter(todo => String(todo.priority) === 'low')
+            const rest = this.state.todos.filter(todo => String(todo.priority) !== 'high' && !String(todo.priority).startsWith('med') && String(todo.priority) !== 'low')
+            return [...highs, ...mediums, ...lows, ...rest]
+        }
+        if(criterion === 'subtasks') {  // sort by subtasks: from those who have subtasks to those who don't
+            const subtasks = this.state.todos.filter(todo => todo.hasSubtasks)
+            const noSubtasks = this.state.todos.filter(todo => !todo.hasSubtasks)
+            return [...subtasks, ...noSubtasks]
+        }
+        if(criterion === 'finished') { // sort by finished: from undone to done
+            const done = this.state.todos.filter(todo => todo.isCompleted)
+            const undone = this.state.todos.filter(todo => !todo.isCompleted)
+            return [...undone, ...done]
+        }
+
+
+
+        if(criterion === 'deadline') {  // sort by deadline: from overdue to today to this week
+            const withDot = this.state.todos.filter(todo => String(todo.deadline).includes('.')).sort((a,b) => a.deadline.localeCompare(b.deadline))
+            const withColon = this.state.todos.filter(todo => String(todo.deadline).includes(':')).sort((a,b) => a.deadline.localeCompare(b.deadline))
+            const rest = this.state.todos.filter(todo => !String(todo.deadline).includes('.') && !String(todo.deadline).includes(':') && String(todo.deadline) !== 'null')
+            const nulls = this.state.todos.filter(todo => String(todo.deadline) === 'null')
+            return [...withColon, ...withDot, ...rest, ...nulls]
+
+
+            // const todays = this.state.todos.filter(todo => String(todo.deadline).includes('today'))
+            // const tomorrows = this.state.todos.filter(todo => String(todo.deadline) === 'tomorrow')
+            // const rest = this.state.todos.filter(todo => !String(todo.deadline).includes('today') && String(todo.deadline) !== 'tomorrow' && String(todo.deadline) !== 'null')
+            // const nulls = this.state.todos.filter(todo => String(todo.deadline) === 'null')
+            // return [...todays, ...tomorrows, ...rest, ...nulls]
+        }
+
+        
+        
+    }
+
+    // ================================================================================================
+
+    getProperIndex(todoName) {
+        return this.state.todos.findIndex(x => x.name === todoName)
     }
 
 }

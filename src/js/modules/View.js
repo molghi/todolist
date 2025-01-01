@@ -178,10 +178,21 @@ class View {
         newToDo.setAttribute('data-subtasks', hasSubtasks)
 
         // Format the creation date
-        const itsDate = `${new Date(created).getFullYear()}:${new Date(created).getMonth()+1}:${new Date(created).getDate().toString().padStart(2,0)}`
+        const itsDate = `${new Date(created).getFullYear()}:${String(new Date(created).getMonth()+1).padStart(2,0)}:${new Date(created).getDate().toString().padStart(2,0)}`
+        // console.log(itsDate)
+
+        const today = `${String(new Date().getMonth()+1).padStart(2,0)}.${new Date().getDate().toString().padStart(2,0)}`
+        const todayStyles = deadline === today ? `style="text-decoration: underline;"` : ''
+
+        const nowTime = new Date(`${new Date().getFullYear()}.${new Date().getMonth()+1}.${new Date().getDate()}`).getTime()
+        const deadlineDate = (deadline !== null && !deadline.includes(':')) && `${new Date().getFullYear()}.${deadline.split('.').reverse().join('.')}`
+        const taskTime = (deadline !== null && !deadline.includes(':')) && new Date(deadlineDate).getTime()
+        const overdueStyles = (taskTime && taskTime-nowTime < 0) ? `style="font-style: italic;"` : ''
+        // console.log(nowTime, taskTime)
 
         // Generate the subtask number if subtasks exist
-        const subtaskNum = !hasSubtasks ? '' : `<td class="item__subtasks-num"><span>num of subs: </span>${subtasks.length}</td>`
+        // const subtaskNum = !hasSubtasks ? '' : `<td class="item__subtasks-num"><span>num of subs: </span>${subtasks.length}</td>`
+        const subtaskNum = ''
 
         // Map over subtasks and generate HTML rows
         const subtasksEl = subtasks?.map((subtask, i) => {
@@ -203,7 +214,9 @@ class View {
         </td>
     </tr>`;
 }).join('')
-        const priorityStyles = priority === null || priority === 'low' ? `style="opacity: 0.35;"` : priority === 'medium' ? `style="opacity: 0.65;"` : null
+        const priorityStyles = (priority === null || priority === 'low') ? `style="opacity: 0.35;"` : priority === 'medium' ? `style="opacity: 0.65;"` : ''
+        const categoryStyles = category === null ? `style="opacity: 0.35;"` : ''
+        const deadlineStyles = deadline === null ? `style="opacity: 0.35;"` : ''
         // Create the item HTML structure
         newToDo.innerHTML = `
         <div class="item__holder">
@@ -214,8 +227,8 @@ class View {
                         <td class="item__number">${order}</td>
                         <td class="item__name" title="${name}">${name}</td>
                         <td class="item__priority" title="priority: ${priority || 'null'}"><span>priority:</span> <span ${priorityStyles}>${priority || 'null'}</span></td>
-                        <td class="item__category" title="category: ${category || 'null'}"><span>category:</span> ${category || 'null'}</td>
-                        <td class="item__deadline" title="deadline: ${deadline || 'null'}"><span>deadline:</span> ${deadline || 'null'}</td>
+                        <td class="item__category" title="category: ${category || 'null'}"><span>category:</span> <span ${categoryStyles}>${category || 'null'}</span></td>
+                    <td class="item__deadline" title="deadline: ${deadline || 'null'}"><span>deadline:</span> <span ${overdueStyles} ${todayStyles} ${deadlineStyles}>${deadline || 'null'}</span></td>
                         <td class="item__has-subtasks" title="subtasks: ${hasSubtasks ? 'true' : 'false'}"><span>subtasks:</span> ${hasSubtasks ? 'true' : 'false'}</td>
                         ${subtaskNum}
                         <td class="item__is-completed" title="finished: ${isCompleted}"><span>finished:</span> ${isCompleted}</td>
