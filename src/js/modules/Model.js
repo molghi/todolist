@@ -186,6 +186,7 @@ class Model {
 
     pushRecentCommand(command) {
         this.state.recentCommands.push(command)
+        this.state.recentCommands = [...new Set(this.state.recentCommands)] // removing duplicates if there are any
     }
 
     // ================================================================================================
@@ -395,6 +396,20 @@ class Model {
 
     getProperIndex(todoName) {
         return this.state.todos.findIndex(x => x.name === todoName)
+    }
+
+    // ================================================================================================
+
+    import(dataObj) {
+        const {accentColor, count, isEditMode, isSortMode, mode, oldValue, sortModeCriterion, commands, flags, todos, recentCommands} = dataObj
+        // I care about 6 things here: accentColor mode oldValue   recentCommands sortModeCriterion todos
+        if(accentColor) this.state.accentColor = accentColor
+        if(mode) this.state.mode = mode
+        if(oldValue) this.state.oldValue = oldValue
+        if(sortModeCriterion) this.state.sortModeCriterion = sortModeCriterion
+        if(Array.isArray(recentCommands)) this.state.recentCommands = recentCommands
+        if(Array.isArray(todos)) this.state.todos = todos
+        console.log(`model: imported`)
     }
 
 }
