@@ -22,7 +22,10 @@ class Model {
             '--sub', // push to 'subtasks' and hasSubtasks=true
             '-s',
         ],
-        recentCommands: ['add do workout --prio high --cat other --dead today', 'add food shopping -p medium -c food -s buy apples, buy bananas, buy oats, buy cheese, buy juice', 'add home chores -p high -c other -d 20:00 -s vacuum clean, dust off', 'manual'],
+        recentCommands: ['add do workout --prio high --cat other --dead today', 
+                        'add food shopping -p medium -c food -d today -s buy apples, buy bananas, buy oats, buy cheese, buy juice', 
+                        'add home chores -p high -c other -d 20:00 -s vacuum clean, dust off', 
+                        'manual'],
         count: 0,
         accentColor: '#32CD32',
         mode: ''
@@ -74,7 +77,47 @@ class Model {
     // ================================================================================================
     
     parseCommandString(string) {
-        let command = string.split(' ')[0]
+        let command
+
+        // case: it is a subtask::
+        if(string.includes(', subtask')) {                  
+            /* 
+            CASES:
+                edit 6.1 -n hello world -f true -- ALL GOOD
+                edit 6.1 -n hello world -f false -- ALL GOOD
+                edit 6.1 -n hello -f true -- ALL GOOD
+                edit 6.1 -n hello -- ALL GOOD
+                edit 6.1 -f true -- ALL GOOD
+                edit 6.1 -f true -n hello -- ALL GOOD
+                edit 6.1 -f true -n hello world -- ALL GOOD
+                edit 6.6 -f true -n hello world -- ALL GOOD
+            */
+            // the only things that are editable in a subtask are 'name' (-n) and 'isCompleted' (-f)
+            string = string.slice(0, string.indexOf(', subtask')) // slicing out ', subtask'
+            command = string.split(' ')[0]
+            string = string.slice(command.length+1) // slicing out command; example: hoover -n hello  or  hoover -n hello world -f true
+            let newName, isCompleted, flagLengthName, flagLengthCompleted, flagName, flagCompleted
+            flagLengthName      = string.includes('--name') ? '--name'.length : string.includes('-n') ? '-n'.length : null
+            flagLengthCompleted = string.includes('--finished') ? '--finished'.length : string.includes('-f') ? '-f'.length : null
+            flagName = (flagLengthName && flagLengthName===2) ? '-n' : (flagLengthName && flagLengthName > 2) ? '--name' : null
+            flagCompleted = (flagLengthCompleted && flagLengthCompleted===2) ? '-f' : (flagLengthCompleted && flagLengthCompleted > 2) ? '--finished' : null
+            // const oldName = string.slice(0, string.indexOf('-')).trim()
+            const stringSplitted = string.split('-').filter(x => x.trim().length>0)
+            const oldName = stringSplitted[0].trim()
+            if(flagLengthName) {
+                newName = stringSplitted.find(x => x.startsWith('n ') || x.startsWith('name ')).trim()
+                newName.startsWith('name ') ? newName = newName.slice(newName.indexOf('name ')+5) : newName = newName.slice(newName.indexOf('n ')+2)
+            }
+            if(flagLengthCompleted) {
+                isCompleted = stringSplitted.find(x => x.startsWith('f ') || x.startsWith('finished ')).trim()
+                isCompleted.startsWith('finished ') ? isCompleted = isCompleted.slice(isCompleted.indexOf('finished ')+9) : isCompleted = isCompleted.slice(isCompleted.indexOf('f ')+2)
+            }
+            // console.log(string) // example: hoover -n hello
+            return [command, {oldName, newName, isCompleted: isCompleted==='true' ? true : isCompleted==='false' ? false : undefined }]
+        }
+        
+
+        command = string.split(' ')[0]
         const todoObj = {}
         if(command !== 'add' && command !== 'edit') return [command, null]
 
@@ -270,6 +313,13 @@ class Model {
     // ================================================================================================
 
     getTodoObjString(index) {
+        // case: it's a subtask:
+        if(index.includes('.')) {
+            const [majortaskIndex, subtaskIndex] = index.split('.')
+            const todoObj = this.state.todos[Number(majortaskIndex)-1]
+            const subtaskObj = todoObj.subtasks[Number(subtaskIndex)-1]
+            return [`edit ${subtaskObj.name}${(subtaskObj.isCompleted===true || subtaskObj.isCompleted===false) ? ` -f ${subtaskObj.isCompleted}` : ''}`, subtaskObj.name]
+        }
         const todoObj = this.state.todos[Number(index)-1]
         const priority = todoObj.priority ? ` --prio ${todoObj.priority}` : ''
         const category = todoObj.category ? ` --cat ${todoObj.category}` : ''
@@ -281,9 +331,19 @@ class Model {
 
     // ================================================================================================
 
-    editTodo(newObj) {
-        // console.log(this.state.oldValue)
-        // console.log(newObj)
+    editTodo(newObj, type='majortask') {
+        if(type==='subtask') {
+            const allTodosWithSubtasks = this.state.todos.filter(todo => todo.hasSubtasks)
+            const todoToEdit = allTodosWithSubtasks.find(todo => {
+                return todo.subtasks.find(subtask => subtask.name===newObj.oldName)
+            })
+            const subtaskIndex = todoToEdit.subtasks.findIndex(sub => sub.name===newObj.oldName)
+            if(newObj.newName) todoToEdit.subtasks[subtaskIndex].name = newObj.newName, console.log(`subtask name was changed`);
+            if(newObj.isCompleted===true || newObj.isCompleted===false) todoToEdit.subtasks[subtaskIndex].isCompleted = newObj.isCompleted, console.log(`subtask isCompleted was changed`);
+            // console.log(todoToEdit.subtasks)
+            return
+        }
+
         const indexToEdit = this.state.todos.findIndex(x => x.name === this.state.oldValue)
         const todoToEdit = this.state.todos[indexToEdit]
         for(let i = 0; i < Object.keys(newObj).length; i++) { // iterating through newObj...
@@ -378,7 +438,7 @@ class Model {
             const withColon = this.state.todos.filter(todo => String(todo.deadline).includes(':')).sort((a,b) => a.deadline.localeCompare(b.deadline))
             const rest = this.state.todos.filter(todo => !String(todo.deadline).includes('.') && !String(todo.deadline).includes(':') && String(todo.deadline) !== 'null')
             const nulls = this.state.todos.filter(todo => String(todo.deadline) === 'null')
-            return [...withColon, ...withDot, ...rest, ...nulls]
+            return [...withDot, ...withColon, ...rest, ...nulls]
 
 
             // const todays = this.state.todos.filter(todo => String(todo.deadline).includes('today'))
@@ -410,6 +470,18 @@ class Model {
         if(Array.isArray(recentCommands)) this.state.recentCommands = recentCommands
         if(Array.isArray(todos)) this.state.todos = todos
         console.log(`model: imported`)
+    }
+
+    // ================================================================================================
+
+    setSubtasksVisibility(todoName, state) {
+        const todoToChange = this.state.todos.find(todo => todo.name === todoName)
+        if(state === 'hidden') {
+            todoToChange.isCollapsed = true
+        }
+        if(state === 'shown') {
+            todoToChange.isCollapsed = false
+        }
     }
 
 }

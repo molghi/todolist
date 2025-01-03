@@ -1,6 +1,11 @@
+// view dependencies:
+import { renderToDo } from './view-dependencies/renderToDo.js';
+import { changeUIColors, isValidHTMLColor, setAccentColor } from './view-dependencies/colorManipulations.js';
+
+
 class View {
     constructor() {
-        this.colorUI = `#32CD32` // by default, it's less intense than 'lime'
+        this.colorUI = `#32cd32` // by default; it's less intense than 'lime'
         this.formEl = document.querySelector('form')
         this.itemsWrapperEl = document.querySelector('.items__wrapper')
         this.todosNumberEl = document.querySelector('.items__title span')
@@ -17,108 +22,24 @@ class View {
 
     // =======================================================================================================================================
 
-    // handles the click on 'Change UI colour'
-    handleActionsClick(handler) {
-        document.querySelector('.actions').addEventListener('click', (e) => {
-            /* 
-            note: if I use an arrow fn as a cb fn of an event listener, 'this' within it points to the instance of the View class
-            if I use a regular fn as a cb fn here, 'this' points to the DOM element that was clicked
-            if you use 'bind(this)' inside the event listener like 'this.changeUIColors().bind(this)', it will not work because bind returns a new function, but the call to this.changeUIColors() executes before bind can take effect.
-            Solution: You should bind the method before you attach it to the event listener, or a use an arrow function without 'bind'.
-            Arrow functions basically skip one step, so to speak, and attach 'this' to one level higher than regular functions.
-            */
-            if(e.target.classList.contains('change-ui-color-btn')) {
-                const newColor = this.changeUIColors()
-                handler('colorUI', newColor)
-            }
-        })
-    }
-
-    // =======================================================================================================================================
-
     // changes UI colour
     changeUIColors(color) {
-        if(color === 'def' || color === 'default') {
-            document.documentElement.style.setProperty('--accent', '#32CD32')
-            this.colorUI = '#32CD32'
-            return '#32cd32'
-        }
-        if(!color) {
-            this.showSystemMessage('error: no color was passed')
-            return null
-        }
-        if(!this.isValidHTMLColor(color)) {
-            this.showSystemMessage(`error: "${color}" is not a valid html color or is too dark!`)
-            return null
-        }
-        document.documentElement.style.setProperty('--accent', color)
-        this.colorUI = color
-        return color
+        return changeUIColors(color, this.colorUI, this.showSystemMessage);   // I import it above;   
+        // I call this View's method the same as the function I'm calling here to avoid renaming everywhere where I use this method in other files
     }
 
     // =======================================================================================================================================
 
-    // small helper fn for this.changeUIColors()
+    // small helper fn for changeUIColors()
     isValidHTMLColor(color) { // returns boolean
-
-        // Create a temporary element to validate the colour:
-        const element = document.createElement('div')
-        element.style.color = color
-
-        // Temporarily append the element to the document body
-        document.body.appendChild(element)
-
-        // PART 1/2: Check if the color is a valid HTML colour
-        if (element.style.color === '') {
-            return false
-        }
-
-        // PART 2/2: Check if the typed colour is not too dark:
-
-        // Get the computed colour in RGB format
-        const computedColor = window.getComputedStyle(element).color
-        // console.log(`'${computedColor}'`)
-
-        // Remove the temporary element from the document
-        document.body.removeChild(element);
-
-        // Extract RGB values using regex
-        const match = computedColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-        if (!match) {
-            console.error(`Error parsing RGB from: ${computedColor}`);
-            return false; // Invalid format, unexpected result
-        }
-
-        // Extract RGB components
-        const [r, g, b] = match.slice(1).map(Number);
-
-        // Debug: Log extracted RGB values
-        // console.log(`Extracted RGB: r=${r}, g=${g}, b=${b}`);
-
-        // Calculate relative luminance (W3C formula)
-        const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-
-        // Debug: Log computed luminance
-        // console.log(`Computed Luminance: ${luminance}`);
-
-        // Define the darkness threshold (for #555)
-        // const darknessThreshold = (0.2126 * 85 + 0.7152 * 85 + 0.0722 * 85) / 255;
-        const darknessThreshold = 0.1
-
-        // Debug: Log darkness threshold
-        // console.log(`Darkness Threshold: ${darknessThreshold}`);
-
-        // Return false if luminance is below the threshold
-        return luminance >= darknessThreshold;
+        isValidHTMLColor(color);    // I import it above
     }
 
     // =======================================================================================================================================
 
     // runs on app init: we check LS 'colorUI' and if exists, this fn runs
     setAccentColor(color) {
-        if(!color) return
-        document.documentElement.style.setProperty('--accent', color)
-        this.colorUI = color
+        setAccentColor(color, this.colorUI);  // I import it above
     }
 
     // =======================================================================================================================================
@@ -144,9 +65,6 @@ class View {
             handler(formInputValue.trim()) // key and value to update Model aka local storage
         })
     }
-
-    // const allCurrentItems = Array.from(this.itemsWrapperEl.querySelectorAll('.item')).map(x => x.querySelector('.item__name').textContent.toLowerCase())
-    // if(allCurrentItems.includes(formInputValue.toLowerCase())) return alert('You have already added this todo!')
     
     // =======================================================================================================================================
 
@@ -165,101 +83,20 @@ class View {
     
     // renders to-do in the DOM
     renderToDo(toDoObj, order) {
-        const {name, isCompleted, priority, deadline, category, created, hasSubtasks, subtasks} = toDoObj
+        renderToDo(toDoObj, order, this.itemsWrapperEl);    // I import it above
+    }
 
-        const newToDo = document.createElement('div')
-        newToDo.classList.add('item')
+    // =======================================================================================================================================
 
-        newToDo.setAttribute('data-name', name)
-        newToDo.setAttribute('data-finished', isCompleted)
-        newToDo.setAttribute('data-priority', priority)
-        newToDo.setAttribute('data-deadline', deadline)
-        newToDo.setAttribute('data-category', category)
-        newToDo.setAttribute('data-subtasks', hasSubtasks)
-
-        // Format the creation date
-        const itsDate = `${new Date(created).getFullYear()}:${String(new Date(created).getMonth()+1).padStart(2,0)}:${new Date(created).getDate().toString().padStart(2,0)}`
-        // console.log(itsDate)
-
-        const today = `${String(new Date().getMonth()+1).padStart(2,0)}.${new Date().getDate().toString().padStart(2,0)}`
-        const todayStyles = deadline === today ? `style="text-decoration: underline;"` : ''
-
-        const nowTime = new Date(`${new Date().getFullYear()}.${new Date().getMonth()+1}.${new Date().getDate()}`).getTime()
-        const deadlineDate = (deadline !== null && !deadline.includes(':')) && `${new Date().getFullYear()}.${deadline.split('.').reverse().join('.')}`
-        const taskTime = (deadline !== null && !deadline.includes(':')) && new Date(deadlineDate).getTime()
-        const overdueStyles = (taskTime && taskTime-nowTime < 0) ? `style="font-style: italic;"` : ''
-        // console.log(nowTime, taskTime)
-
-        // Generate the subtask number if subtasks exist
-        // const subtaskNum = !hasSubtasks ? '' : `<td class="item__subtasks-num"><span>num of subs: </span>${subtasks.length}</td>`
-        const subtaskNum = ''
-
-        // Map over subtasks and generate HTML rows
-        const subtasksEl = subtasks?.map((subtask, i) => {
-    return `<tr class="item__subtask" data-finished="${subtask.isCompleted}">
-        <td>----</td>
-        <td>${order}.${i+1}</td>
-        <td class="item__subtask-name" title="${subtask.name}">${subtask.name}</td>
-        <td title="${subtask.isCompleted}"><span>finished:</span> ${subtask.isCompleted}</td>
-        <td class="item__subtask-btns">
-            <button class="item__subtask-btn item__subtask-btn--complete" title="Complete">
-                <i class="fa-solid fa-circle-check"></i>
-            </button>
-            <button class="item__subtask-btn item__subtask-btn--edit" title="Edit">
-                <i class="fa-solid fa-pen"></i>
-            </button>
-            <button class="item__subtask-btn item__subtask-btn--remove" title="Delete">
-                <i class="fa-solid fa-trash"></i>
-            </button>
-        </td>
-    </tr>`;
-}).join('')
-        const priorityStyles = (priority === null || priority === 'low') ? `style="opacity: 0.35;"` : priority === 'medium' ? `style="opacity: 0.65;"` : ''
-        const categoryStyles = category === null ? `style="opacity: 0.35;"` : ''
-        const deadlineStyles = deadline === null ? `style="opacity: 0.35;"` : ''
-        // Create the item HTML structure
-        newToDo.innerHTML = `
-        <div class="item__holder">
-        
-        <table class="item__wrapper">
-                    <tbody>
-                    <tr>
-                        <td class="item__number">${order}</td>
-                        <td class="item__name" title="${name}">${name}</td>
-                        <td class="item__priority" title="priority: ${priority || 'null'}"><span>priority:</span> <span ${priorityStyles}>${priority || 'null'}</span></td>
-                        <td class="item__category" title="category: ${category || 'null'}"><span>category:</span> <span ${categoryStyles}>${category || 'null'}</span></td>
-                    <td class="item__deadline" title="deadline: ${deadline || 'null'}"><span>deadline:</span> <span ${overdueStyles} ${todayStyles} ${deadlineStyles}>${deadline || 'null'}</span></td>
-                        <td class="item__has-subtasks" title="subtasks: ${hasSubtasks ? 'true' : 'false'}"><span>subtasks:</span> ${hasSubtasks ? 'true' : 'false'}</td>
-                        ${subtaskNum}
-                        <td class="item__is-completed" title="finished: ${isCompleted}"><span>finished:</span> ${isCompleted}</td>
-                        <td class="item__date" title="creation date: ${itsDate}"><span>created:</span> ${itsDate}</td>
-                    </tr>
-                    </tbody>
-                </table>
-
-                        <div class="item__btns">
-                            <button class="item__btn item__btn--complete" title="Complete">
-                                <i class="fa-solid fa-circle-check"></i>
-                            </button>
-                            <button class="item__btn item__btn--edit" title="Edit">
-                                <i class="fa-solid fa-pen"></i>
-                            </button>
-                            <button class="item__btn item__btn--remove" title="Delete">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                        </div>
-                        </div>
-
-                        ${hasSubtasks ? `<div class="item__subtasks-holder">
-                            <table>
-                                <tbody>
-                                    ${subtasksEl}
-                                </tbody>
-                            </table>
-                        </div>` : ''}
-                        
-                        `
-        this.itemsWrapperEl.appendChild(newToDo) 
+    handleTogglingSubtasks(handler) {
+        this.itemsWrapperEl.addEventListener('click', (e) => {
+            if(!e.target.classList.contains('with-subtasks')) return
+            const subtasksBoxEl = e.target.closest('.item').querySelector('.item__subtasks-holder')
+            subtasksBoxEl.classList.toggle('hidden')
+            const state = subtasksBoxEl.classList.contains('hidden') ? 'hidden' : 'shown'
+            const todoName = e.target.closest('.item').querySelector('.item__name').textContent
+            handler(todoName, state)
+        })
     }
 
     // =======================================================================================================================================
@@ -367,53 +204,10 @@ class View {
 
     // =======================================================================================================================================
 
-    // changes H2 to reflect the current mode (Adding/Editing)
-    changeH2(mode) {
-        if(mode==='edit mode') {
-            this.h2.textContent = `Edit Your To-Do`
-        } else {
-            this.h2.textContent = `Add Your New To-Do`
-        }
-    }
-
-    // =======================================================================================================================================
-
-    // changes form btn to reflect the current mode (Adding/Editing)
-    changeFormBtn(mode) {
-        if(mode==='edit mode') {
-            this.formBtn.innerHTML = `Edit`
-        } else {
-            this.formBtn.innerHTML = `<i class="fa-solid fa-plus"></i>
-Add`
-        }
-    }
-
-    // =======================================================================================================================================
-
-    // highlights a todo (in editing)
-    highlightTodo(toggle, el) {
-        if(toggle === 'highlight') {
-            el.classList.add('highlight')
-        } else { // de-highlight
-            document.querySelectorAll('.item').forEach(x => x.classList.remove('highlight'))
-        }
-    }
-
-    // =======================================================================================================================================
-
     // updates a todo (after form submit in editing)
     updateTodoElement(el, value) { 
         el.querySelector('.item__name').textContent = value
         el.querySelector('.item__name').setAttribute('title', value)
-    }
-
-    // =======================================================================================================================================
-
-    // changing the UI back to Adding mode: change H2, change form btn, and dehighlight all todos
-    removeEditingMode() {
-        this.changeH2('adding mode') 
-        this.changeFormBtn('adding mode')
-        this.highlightTodo('dehighlight')
     }
 
     // =======================================================================================================================================
@@ -456,7 +250,8 @@ Add`
     // to make sure that '> ' at the beginning of the input is undeletable
     formatInput() {
         const input = this.formInput;
-        ['input', 'keydown'].forEach(ev => {
+        ['input', 'keydown', 'paste'].forEach(ev => {
+
             input.addEventListener(ev, (e) => {
                 if(ev === 'keydown') {  // if it's an 'keydown' event:
                     if(e.code === 'KeyZ' && e.metaKey) { // tracking the undo operation
@@ -473,15 +268,25 @@ Add`
                 }
 
                 // if it's an 'input' event:
-                if (!input.value.startsWith('> ')) {
-                    const selectionStart = input.selectionStart;
-                    const preservedContent = input.value.replace(/^> /, ''); // Remove any stray prefix
-                    input.value = '> ' + preservedContent;
+                if(ev === 'input') {
+                // If the input is empty or has only the prefix, reset it
+                    if (input.value === '' || input.value === '>') {
+                        input.value = '> ';
+                    }
+                    // Ensure the input always starts with "> "
+                    if (!input.value.startsWith('> ')) {
+                        input.value = '> ' + input.value.trimStart();
+                    }
+                    // Move the cursor to the end of the input
+                    input.setSelectionRange(input.value.length, input.value.length);
+                }
 
-                    // Adjust cursor position after prefix restoration
-                    const cursorOffset = 2; // Length of '> '
-                    // Cursor Adjustment below: Using 'setSelectionRange' to position the cursor correctly after restoring the prefix, taking into account the length of the prefix:
-                    input.setSelectionRange(selectionStart + cursorOffset, selectionStart + cursorOffset);
+                // Handle paste events specifically
+                if(ev === 'paste') {
+                    const pastedText = (e.clipboardData || window.clipboardData).getData('text'); // Retrieves the text data being pasted. `e.clipboardData` is a modern browser API providing access to clipboard content during a paste event. '.getData('text')' extracts the plain text content from the clipboard.
+                    input.value = '> ' + pastedText.trim();
+                    e.preventDefault(); // Stops the default paste behaviour of the browser
+                    input.setSelectionRange(input.value.length, input.value.length); // Moves the blinking cursor (caret) to the end of the input field after updating its value
                 }
 
                 // if(input.value.length < 3 || !input.value.startsWith('> ')) {
@@ -552,6 +357,18 @@ Add`
             return todoEl.classList.remove('hidden')
         }
         todoEl.classList.add('hidden')
+    }
+
+    // =======================================================================================================================================
+
+    handleEditingSubtask(handler) {
+        this.itemsWrapperEl.addEventListener('click', (e) => {
+            if(!e.target.closest('.item__subtask-btn--edit')) return
+            const subtaskEl = e.target.closest('.item__subtask')
+            const name = subtaskEl.querySelector('.item__subtask-name').textContent
+            const index = subtaskEl.querySelector('.item__subtask-number').textContent
+            handler(name, index)
+        })
     }
 
     // =======================================================================================================================================
