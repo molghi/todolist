@@ -28,7 +28,7 @@ body {
     font-family: "Share Tech Mono","Monaco","Courier New", monospace, sans-serif;
     /* text-shadow: 0 0 10px var(--accent); */
     height: 100%;
-    overflow-y: hidden;
+    // overflow-y: hidden;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -121,3 +121,24 @@ $md4: 479.98; // for small phones
 }
 
 // =============================================================================================
+
+
+/* Apply to body or any scrollable element */
+body {
+    scrollbar-width: thin; /* Options: auto, thin, none */
+    scrollbar-color: darkgrey black; /* thumb colour first, track colour second */
+}
+
+/* For WebKit-based browsers (Chrome, Edge, Safari) */
+body::-webkit-scrollbar {
+    width: 5px; /* Width of the scrollbar */
+}
+
+body::-webkit-scrollbar-thumb {
+    background: darkgrey; /* Thumb (draggable part) colour */
+    border-radius: 0px; /* Rounded corners */
+}
+
+body::-webkit-scrollbar-track {
+    background: black; /* Track colour */
+}

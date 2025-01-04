@@ -2,13 +2,16 @@
 import { renderToDo } from './view-dependencies/renderToDo.js';
 import { formatInput } from './view-dependencies/formatInput.js';
 import { changeUIColors, isValidHTMLColor, setAccentColor } from './view-dependencies/colorManipulations.js';
+import { manual } from './view-dependencies/manualHtml';
 
 
 class View {
     constructor() {
         this.colorUI = `#32cd32` // by default; it's less intense than 'lime'
         this.formEl = document.querySelector('form')
+        this.sectionContainer = document.querySelector('.container')
         this.itemsWrapperEl = document.querySelector('.items__wrapper')
+        this.itemsTopmostEl = document.querySelector('.items')
         this.todosNumberEl = document.querySelector('.items__title span')
         this.filterInput = document.querySelector('.filter-input')
         this.clearBtn = document.querySelector('.clear-btn')
@@ -20,6 +23,7 @@ class View {
         this.systemMsgEl = document.querySelector('.system-message span:nth-child(2)')
         this.itemToDelete = ''
         this.deletionItemType = 'majortask'
+        this.manualEl = ''
     }
 
     // =======================================================================================================================================
@@ -140,7 +144,8 @@ class View {
 
     handleTogglingSubtasks(handler) {
         this.itemsWrapperEl.addEventListener('click', (e) => {
-            if(!e.target.classList.contains('with-subtasks')) return
+            // if(!e.target.classList.contains('with-subtasks')) return
+            if(!e.target.closest('.with-subtasks')) return
             const subtasksBoxEl = e.target.closest('.item').querySelector('.item__subtasks-holder')
             subtasksBoxEl.classList.toggle('hidden')
             const state = subtasksBoxEl.classList.contains('hidden') ? 'hidden' : 'shown'
@@ -268,6 +273,22 @@ class View {
             const name = subtaskEl.querySelector('.item__subtask-name').textContent
             handler(name)
         })
+    }
+
+    // =======================================================================================================================================
+
+    toggleManual(flag='show') {
+        if(document.querySelector('.manual-wrapper')) document.querySelector('.manual-wrapper').remove() // removing it before creating it
+        const manualWrapper = document.createElement('div')
+        manualWrapper.classList.add('manual-wrapper')
+        this.manualEl = manualWrapper
+        this.setInputValue('press q or esc to hide the manual: ')
+        this.showSystemMessage('showing the manual (press q or esc to hide it)')
+
+        manualWrapper.innerHTML = manual();   // I import it above
+        
+        this.sectionContainer.appendChild(manualWrapper)
+        this.itemsTopmostEl.classList.toggle('hidden')
     }
 
     // =======================================================================================================================================

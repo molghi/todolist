@@ -148,6 +148,11 @@ function handleFormSubmit(value, type='') {
         importFile()
         return
     }
+
+    if(command === 'manual' || command === 'man') {
+        toggleManual()
+        return
+    }
     
     Visual.clearFormInput()
     Visual.showSystemMessage('error: command does not exist, type "manual" or "man" to see the manual')
@@ -172,6 +177,13 @@ function deleteSubtaskByBtn(subtaskName) {
     // console.log(subtaskName)
     Visual.setInputValue(`are you sure you want to delete "${subtaskName}"? type y/n: `)
     Visual.focusInput()
+}
+
+// =======================================================================================================================================
+
+function toggleManual() {
+    console.log(`heres your manual`)
+    Visual.toggleManual()
 }
 
 // =======================================================================================================================================
