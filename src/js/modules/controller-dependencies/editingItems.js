@@ -182,7 +182,13 @@ function editItem(value) {
     }
 }
 
-// ================================================================================================
+
+
+
+// ==========================================================================================================================================
+
+
+
 
 function editTodoByBtn(valueToEdit) {
     // it runs if I clicked on the edit btn of some todo: now I need to get its index from the UI:

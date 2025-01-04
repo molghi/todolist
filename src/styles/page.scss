@@ -27,7 +27,6 @@
         .form-input {
             flex-grow: 1;
             width: 100%;
-            // border-bottom: 1px solid var(--accent);
             &::placeholder {
                 transition: all .3s;
             }
@@ -41,23 +40,6 @@
         }
     }
 
-
-.input-box {
-    // position: relative;
-    //     font-family: inherit;
-    //     font-size: var(--fontsize);
-    
-    //     &::after {
-    //         content: "";
-    //         position: absolute;
-    //         width: 5px;
-    //         background-color: var(--accent);
-    //         top: 0;
-    //         bottom: 0;
-    //         left: 0;
-    //         animation: blink 1s step-start infinite;
-    //     }
-}
 
 
     .items {
@@ -107,7 +89,27 @@
         }
 
 
+
+
+
+
+
+
+
+
         .item {
+
+            &[data-finished="true"] {
+                .item__name span {
+                    text-decoration: line-through;
+                }
+            }
+            &[data-finished="false"] {
+                .item__name span {
+                    text-decoration: none;
+                }
+            }
+
             &__number {
                 min-width: 16.5px;
                 // min-width: 25.5px;
@@ -118,18 +120,6 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
             }
-            // &__priority {
-            //     min-width: 130px;
-            //     max-width: 130px;
-            // }
-            // &__deadline, &__has-subtasks, &__is-completed {
-            //     min-width: 122px;
-            //     max-width: 122px;
-            // }
-            // &__category {
-            //     min-width: 140px;
-            //     max-width: 140px;
-            // }
 
             &[data-finished="true"] {
                 .item__name {
@@ -147,10 +137,6 @@
             .item__name.with-subtasks {
                 text-decoration: underline;
                 cursor: pointer;
-
-                &:hover {
-                    text-decoration: none;
-                }
             }
             
             &__holder {
@@ -199,6 +185,10 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
+                span {
+                    font-style: initial !important;
+                    opacity: 1 !important;
+                }
             }
 
             &__btns {
@@ -227,6 +217,13 @@
                 }
             }
             
+
+            &__subtask-name {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
             &__subtask {
                 td:nth-child(4) {
                     min-width: 122px;

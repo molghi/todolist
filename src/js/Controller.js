@@ -30,12 +30,12 @@ function init() {
 
     if(myState) { // if local storage for state is not empty...
         const fetchedState = JSON.parse(myState)
-        console.log(`fetchedState`,fetchedState)
+        // console.log(`fetchedState`,fetchedState)
         fetchedState.todos.forEach((toDo, i) => {
             Visual.renderToDo(toDo, i+1) // render each todo
             Logic.pushToDo(toDo) // push to Model's state
         }) 
-        console.log(`LogicState`, Logic.getState())
+        // console.log(`LogicState`, Logic.getState())
         if(fetchedState.accentColor) {
             Logic.changeAccentColor(fetchedState.accentColor)
             Visual.changeUIColors(fetchedState.accentColor)
@@ -59,13 +59,12 @@ function runEventListeners() {
     Visual.shiftCursorToTheEndAfterPasting()  // happens upon the 'paste' event: shifts the cursor in the input field to the end of what's in the input field
     Visual.handleCompletingTodo(completeTodoByBtn)
     Visual.trackTabPress(autocompleteValue)
-    Visual.handleTogglingSubtasks(persistSubtasksVisibility)
-    Visual.handleEditingSubtask(editSubtaskByBtn)
-
-    // Visual.handleFiltering()
-    // Visual.handleRemovingAllTodos(deleteTodos)
     Visual.handleEditingTodo(editTodoByBtn) 
     Visual.handleRemovingTodo(deleteTodoByBtn) 
+    
+    Visual.handleTogglingSubtasks(persistSubtasksVisibility)
+    Visual.handleEditingSubtask(editSubtaskByBtn)
+    Visual.handleDeletingSubtask(deleteSubtaskByBtn) 
 }
 
 // =======================================================================================================================================
@@ -78,7 +77,9 @@ function handleFormSubmit(value, type='') {
 
     if(value.includes(`are you sure you want to delete`)) {
         value = value.slice(value.lastIndexOf(' ')+1)
-        const indexToRemove = Visual.itemToDelete?.querySelector('.item__number').textContent
+        let indexToRemove
+        if(Visual.itemToDelete.classList.contains('item')) indexToRemove = Visual.itemToDelete?.querySelector('.item__number')?.textContent
+        if(Visual.itemToDelete.classList.contains('item__subtask')) indexToRemove = Visual.itemToDelete?.querySelector('.item__subtask-number')?.textContent
         if(!value) value = `delete ${indexToRemove}`
         Logic.state.mode = 'delete'
         if(type==='click event') { // if deletion was triggered through pressing the item's delete button:
@@ -94,8 +95,6 @@ function handleFormSubmit(value, type='') {
         command = 'clearall'
     }
 
-    // console.log(value, ',', command)
-
     if(!command) {  
         Visual.showSystemMessage('error: no command received')
         Visual.clearFormInput()
@@ -104,7 +103,7 @@ function handleFormSubmit(value, type='') {
 
     if(command === 'add') {
         [command, todoObj] = Logic.makeTodoObject(value)
-        addItem(command, todoObj)
+        addItem(command, todoObj, value)
         Visual.clearFormInput()
         return
     }
@@ -156,11 +155,26 @@ function handleFormSubmit(value, type='') {
 
 // =======================================================================================================================================
 
-function editSubtaskByBtn(subtaskName, subtaskIndexUI) {
-    console.log(subtaskName, subtaskIndexUI)
+function editSubtaskByBtn(subtaskName, subtaskIndexUI) {       // 🔴 move from here to the Edit module
+    /* what must happen:
+    - bring all of this subtask into input:      edit 6.1 -n hoover -f true
+    - focus input
+    */
+    const subtaskEl = [...document.querySelectorAll('.item__subtask-name')].find(x => x.textContent === subtaskName)?.closest('.item__subtask')
+    const subtaskFinishedText = subtaskEl.querySelector('.item__subtask-finished').textContent.split(':')[1].trim()
+    Visual.setInputValue(`edit ${subtaskIndexUI} -n ${subtaskName} -f ${subtaskFinishedText}`)
+    Visual.focusInput()
+}
+
+// =======================================================================================================================================
+
+function deleteSubtaskByBtn(subtaskName) {
+    // console.log(subtaskName)
+    Visual.setInputValue(`are you sure you want to delete "${subtaskName}"? type y/n: `)
+    Visual.focusInput()
 }
 
 // =======================================================================================================================================
 
 // Exporting instances so other modules can use them:
-export { Logic, Visual };
+export { Logic, Visual, handleFormSubmit };

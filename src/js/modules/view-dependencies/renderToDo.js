@@ -18,43 +18,43 @@ export function renderToDo(toDoObj, order, itemsWrapperEl) {
         const today = `${new Date().getDate().toString().padStart(2,0)}.${String(new Date().getMonth()+1).padStart(2,0)}`
         const todayStyles = deadline === today ? `underlined` : ''
 
+        // deadline settings:
         const nowTime = new Date(`${new Date().getFullYear()}.${new Date().getMonth()+1}.${new Date().getDate()}`).getTime()
         const deadlineDate = (deadline !== null && !deadline.includes(':')) && `${new Date().getFullYear()}.${deadline.split('.').reverse().join('.')}`
         const taskTime = (deadline !== null && !deadline.includes(':')) && new Date(deadlineDate).getTime()
         const overdueStyles = (taskTime && taskTime-nowTime < 0) ? `italic` : ''
         const deadlineContent = overdueStyles ? 'overdue' : deadline || 'null'
-
+        
+        // other style settings:
         const hasSubtasksStyles = hasSubtasks ? 'with-subtasks' : ''
-
         const subtasksVisibilityStyles = (toDoObj.hasOwnProperty('isCollapsed') && toDoObj.isCollapsed === true) ? 'hidden' : ''
-
-        // Generate the subtask number if subtasks exist
-        // const subtaskNum = !hasSubtasks ? '' : `<td class="item__subtasks-num"><span>num of subs: </span>${subtasks.length}</td>`
-        const subtaskNum = ''
-
-        // Map over subtasks and generate HTML rows
-        const subtasksEl = subtasks?.map((subtask, i) => {
-    return `<tr class="item__subtask" data-finished="${subtask.isCompleted}">
-        <td>----</td>
-        <td class="item__subtask-number">${order}.${i+1}</td>
-        <td class="item__subtask-name" title="${subtask.name}">${subtask.name}</td>
-        <td title="${subtask.isCompleted}"><span>finished:</span> ${subtask.isCompleted}</td>
-        <td class="item__subtask-btns">
-            <button class="item__subtask-btn item__subtask-btn--complete" title="Complete">
-                <i class="fa-solid fa-circle-check"></i>
-            </button>
-            <button class="item__subtask-btn item__subtask-btn--edit" title="Edit">
-                <i class="fa-solid fa-pen"></i>
-            </button>
-            <button class="item__subtask-btn item__subtask-btn--remove" title="Delete">
-                <i class="fa-solid fa-trash"></i>
-            </button>
-        </td>
-    </tr>`;
-}).join('')
         const priorityStyles = (priority === null || priority === 'low') ? `style="opacity: 0.35;"` : priority === 'medium' ? `style="opacity: 0.65;"` : ''
         const categoryStyles = category === null ? `style="opacity: 0.35;"` : ''
         const deadlineStyles = deadline === null ? `style="opacity: 0.35;"` : ''
+
+
+        // Map over subtasks and generate HTML rows
+        const subtasksEl = subtasks?.map((subtask, i) => {
+            return `<tr class="item__subtask" data-finished="${subtask.isCompleted}">
+                <td>----</td>
+                <td class="item__subtask-number">${order}.${i+1}</td>
+                <td class="item__subtask-name" title="${subtask.name}">${subtask.name}</td>
+                <td class="item__subtask-finished" title="${subtask.isCompleted}"><span>finished:</span> ${subtask.isCompleted}</td>
+                <td class="item__subtask-btns">
+                    <button class="item__subtask-btn item__subtask-btn--complete" title="Complete">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </button>
+                    <button class="item__subtask-btn item__subtask-btn--edit" title="Edit">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                    <button class="item__subtask-btn item__subtask-btn--remove" title="Delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+        }).join('')
+
+
         // Create the item HTML structure
         newToDo.innerHTML = `
         <div class="item__holder">
@@ -63,12 +63,11 @@ export function renderToDo(toDoObj, order, itemsWrapperEl) {
                     <tbody>
                     <tr>
                         <td class="item__number">${order}</td>
-                        <td class="item__name ${hasSubtasksStyles}" title="${name}">${name}</td>
+                        <td class="item__name ${hasSubtasksStyles}" title="${name}"><span>${name}</span></td>
                         <td class="item__priority" title="priority: ${priority || 'null'}"><span>priority:</span> <span ${priorityStyles}>${priority || 'null'}</span></td>
                         <td class="item__category" title="category: ${category || 'null'}"><span>category:</span> <span ${categoryStyles}>${category || 'null'}</span></td>
-    <td class="item__deadline" title="deadline: ${deadline || 'null'}"><span>deadline:</span> <span class="${todayStyles} ${overdueStyles}" ${deadlineStyles}>${deadlineContent}</span></td>
+                        <td class="item__deadline" title="deadline: ${deadline || 'null'}"><span>deadline:</span> <span class="${todayStyles} ${overdueStyles}" ${deadlineStyles}>${deadlineContent}</span></td>
                         <td class="item__has-subtasks" title="subtasks: ${hasSubtasks ? 'true' : 'false'}"><span>subtasks:</span> ${hasSubtasks ? 'true' : 'false'}</td>
-                        ${subtaskNum}
                         <td class="item__is-completed" title="finished: ${isCompleted}"><span>finished:</span> ${isCompleted}</td>
                         <td class="item__date" title="creation date: ${itsDate}"><span>created:</span> ${itsDate}</td>
                     </tr>
