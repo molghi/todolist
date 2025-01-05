@@ -23,7 +23,13 @@ export function manual() {
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>add</span> 1 buy milk</span> &mdash;
-                            <span class="manual-command-explanation">Assuming that there is an item with the index of 1 in the table, it adds a subtask to it, named "buy milk"</span>
+                            <span class="manual-command-explanation">Assuming that there is an item with the index of 1 on the list, it adds a subtask to it, named "buy milk"</span>
+                        </div>
+                    </li>
+                    <li class="manual-section-line-wrapper">
+                        <div class="manual-section-line">
+                            <span class="manual-command"><span>add</span> 1 buy milk, buy tea</span> &mdash;
+                            <span class="manual-command-explanation">Assuming that there is an item with the index of 1 on the list, it adds 2 subtasks to it, "buy milk" and "buy tea"</span>
                         </div>
                     </li>
                 </ol>
@@ -46,7 +52,7 @@ export function manual() {
                 </ol>
             </div>
             <div class="manual-section">
-                <div class="manual-section-title">Commands To Edit:</div>
+                <div class="manual-section-title">Commands To Edit/Complete:</div>
                 <ol>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
@@ -91,8 +97,44 @@ export function manual() {
                 <ol>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
+                            <span class="manual-command"><span>fil</span> -n buy</span> &mdash;
+                            <span class="manual-command-explanation">Filters by name (-n) and shows only those items that have "buy" in their names (you can write "filter" instead of "fil" there)</span>
+                        </div>
+                    </li>
+                    <li class="manual-section-line-wrapper">
+                        <div class="manual-section-line">
                             <span class="manual-command"><span>fil</span> -p high</span> &mdash;
-                            <span class="manual-command-explanation">Filters and shows only those items that have the priority set to "high" (you can write "filter" instead of "fil" there)</span>
+                            <span class="manual-command-explanation">Filters by priority (-p) and shows only those items that have the priority set to "high"</span>
+                        </div>
+                    </li>
+                    <li class="manual-section-line-wrapper">
+                        <div class="manual-section-line">
+                            <span class="manual-command"><span>fil</span> -c food</span> &mdash;
+                            <span class="manual-command-explanation">Filters by category (-c) and shows only those items that have "food" in their category</span>
+                        </div>
+                    </li>
+                    <li class="manual-section-line-wrapper">
+                        <div class="manual-section-line">
+                            <span class="manual-command"><span>fil</span> -d overdue</span> &mdash;
+                            <span class="manual-command-explanation">Filters by deadline (-d) and shows only those items that are overdue</span>
+                        </div>
+                    </li>
+                    <li class="manual-section-line-wrapper">
+                        <div class="manual-section-line">
+                            <span class="manual-command"><span>fil</span> -s true</span> &mdash;
+                            <span class="manual-command-explanation">Filters by the subtasks state (-s) and shows only those items that have subtasks</span>
+                        </div>
+                    </li>
+                    <li class="manual-section-line-wrapper">
+                        <div class="manual-section-line">
+                            <span class="manual-command"><span>fil</span> -f false</span> &mdash;
+                            <span class="manual-command-explanation">Filters by the finished state (-f) and shows only those items that are unfinished</span>
+                        </div>
+                    </li>
+                    <li class="manual-section-line-wrapper">
+                        <div class="manual-section-line">
+                            <span class="manual-command"><span>fil</span> all</span> &mdash;
+                            <span class="manual-command-explanation">Removes any filter</span>
                         </div>
                     </li>
                 </ol>
@@ -104,6 +146,36 @@ export function manual() {
                         <div class="manual-section-line">
                             <span class="manual-command"><span>sort</span> priority</span> &mdash;
                             <span class="manual-command-explanation">Sorts the entire table by priority: from "high" to "low" or "null"</span>
+                        </div>
+                    </li>
+                    <li class="manual-section-line-wrapper">
+                        <div class="manual-section-line">
+                            <span class="manual-command"><span>sort</span> category</span> &mdash;
+                            <span class="manual-command-explanation">Sorts the entire table by category: alphabetical A to Z</span>
+                        </div>
+                    </li>
+                    <li class="manual-section-line-wrapper">
+                        <div class="manual-section-line">
+                            <span class="manual-command"><span>sort</span> deadline</span> &mdash;
+                            <span class="manual-command-explanation">Sorts the entire table by deadline: from overdue to upcoming</span>
+                        </div>
+                    </li>
+                    <li class="manual-section-line-wrapper">
+                        <div class="manual-section-line">
+                            <span class="manual-command"><span>sort</span> subtasks</span> &mdash;
+                            <span class="manual-command-explanation">Sorts the entire table by subtasks: from those with subtasks to those without</span>
+                        </div>
+                    </li>
+                    <li class="manual-section-line-wrapper">
+                        <div class="manual-section-line">
+                            <span class="manual-command"><span>sort</span> finished</span> &mdash;
+                            <span class="manual-command-explanation">Sorts the entire table by finished: from the unfinished to finished</span>
+                        </div>
+                    </li>
+                    <li class="manual-section-line-wrapper">
+                        <div class="manual-section-line">
+                            <span class="manual-command"><span>sort</span> def</span> &mdash;
+                            <span class="manual-command-explanation">Returns the default state (unsorts it)</span>
                         </div>
                     </li>
                 </ol>
@@ -163,8 +235,8 @@ export function manual() {
                     </li>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
-                            <span class="manual-command"><span>Q</span> or <span>Esc</span></span> &mdash;
-                            <span class="manual-command-explanation">Press those keys to close this manual you're currently reading.</span>
+                            <span class="manual-command"><span>Esc</span></span> &mdash;
+                            <span class="manual-command-explanation">Press this key to close this manual you're currently reading.</span>
                         </div>
                     </li>
                 </ol>

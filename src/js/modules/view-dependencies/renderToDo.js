@@ -24,6 +24,7 @@ export function renderToDo(toDoObj, order, itemsWrapperEl) {
         const taskTime = (deadline !== null && !deadline.includes(':')) && new Date(deadlineDate).getTime()
         const overdueStyles = (taskTime && taskTime-nowTime < 0) ? `italic` : ''
         const deadlineContent = overdueStyles ? 'overdue' : deadline || 'null'
+        if(deadlineContent==='overdue') newToDo.setAttribute('data-deadline', 'overdue');
         
         // other style settings:
         const hasSubtasksStyles = hasSubtasks ? 'with-subtasks' : ''

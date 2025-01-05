@@ -2,6 +2,7 @@ import { Logic, Visual } from '../../Controller.js';
 
 function sortTodos(value) {             // I can rewrite all IF's here in a better way
     Logic.pushRecentCommand(value.trim()) // pushing recent command to Model's state
+    Logic.saveToLS('state', JSON.stringify(Logic.getState()), 'reference') // pushing Model's state to local storage
     Logic.state.isSortMode = true
     const criterion = value.trim().split(' ')[1]
 

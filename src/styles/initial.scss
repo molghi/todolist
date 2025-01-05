@@ -1,5 +1,4 @@
-$accent: #32CD32;
-/* slightly paler than 'lime' but brighter than 'green' */
+$accent: #32CD32;  /* slightly paler than 'lime' but brighter than 'green' */
 $bg: #000;
 $fontsize: 15px;
 
@@ -24,14 +23,12 @@ body {
     background-color: var(--bg);
     color: var(--accent);
     font-size: var(--fontsize);
-    // "Share Tech Mono", "Monaco",
     font-family: "Share Tech Mono","Monaco","Courier New", monospace, sans-serif;
-    /* text-shadow: 0 0 10px var(--accent); */
     height: 100%;
-    // overflow-y: hidden;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    overflow-x: hidden;
 }
 
 input,
@@ -42,26 +39,12 @@ textarea {
     background-color: transparent;
     color: inherit;
     font-family: inherit;
-    // border: 1px solid var(--accent);
     outline: none;
-    // padding: 10px;
     font-size: inherit;
     transition: box-shadow .3s;
 }
 
-button {
-    // transition: all .3s;
-}
-
-input:focus,
-textarea:focus {
-    // box-shadow: 0 0 10px var(--accent);
-}
-
 button:hover {
-    // background-color: var(--accent);
-    // color: $bg;
-    // box-shadow: 0 0 10px var(--accent);
     opacity: 0.3;
 }
 
@@ -86,7 +69,7 @@ input::placeholder {
 // =============================================================================================
 
 
-//  TO MAKE IT RESPONSIVE
+// RESPONSIVENESS
 
 $minwidth: 320px;
 
@@ -104,6 +87,7 @@ $md4: 479.98; // for small phones
     // max-width: $mw+px;
     // margin: 0 auto;
     margin: 10px;
+    margin-top: 0;
     // width: 100%;
 
     // @media (max-width: $md1+px) {
@@ -131,7 +115,7 @@ body {
 
 /* For WebKit-based browsers (Chrome, Edge, Safari) */
 body::-webkit-scrollbar {
-    width: 5px; /* Width of the scrollbar */
+    width: 3px; /* Width of the scrollbar */
 }
 
 body::-webkit-scrollbar-thumb {

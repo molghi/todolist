@@ -1,7 +1,6 @@
 
 
-// it is a good practice to split your code into different files and then import them here
-
-
-@use './initial';
-@use './page';
+@use './initial';         // styles reset and general things for the proj
+@use './inputAndItems';   // styles for form input and all items
+@use './other';           // small things, kind of like utilities
+@use './manual';          // styles for the manual section

@@ -264,32 +264,32 @@ class Model {
         const parsedFlags = {}
         if(string.includes('--name') || string.includes('-n ')) {
             const flagLength = string.includes('--name') ? '--name' : '-n'
-            this.parseFilterStringHelper(flagLength, 'name')
+            this.parseFilterStringHelper(string, parsedFlags, flagLength, 'name')
         }
         if(string.includes('--finished') || string.includes('-f ')) {
             const flagLength = string.includes('--finished') ? '--finished' : '-f'
-            this.parseFilterStringHelper(flagLength, 'finished')
+            this.parseFilterStringHelper(string, parsedFlags, flagLength, 'finished')
         }
         if(string.includes('--prio') || string.includes('-p ')) {
             const flagLength = string.includes('--prio') ? '--prio' : '-p'
-            this.parseFilterStringHelper(flagLength, 'priority')
+            this.parseFilterStringHelper(string, parsedFlags, flagLength, 'priority')
         }
         if(string.includes('--dead') || string.includes('-d ')) {
             const flagLength = string.includes('--dead') ? '--dead' : '-d'
-            this.parseFilterStringHelper(flagLength, 'deadline')
+            this.parseFilterStringHelper(string, parsedFlags, flagLength, 'deadline')
         }
         if(string.includes('--cat') || string.includes('-c ')) {
             const flagLength = string.includes('--cat') ? '--cat' : '-c'
-            this.parseFilterStringHelper(flagLength, 'category')
+            this.parseFilterStringHelper(string, parsedFlags, flagLength, 'category')
         }
         if(string.includes('--sub') || string.includes('-s ')) {
             const flagLength = string.includes('--sub') ? '--sub' : '-s'
-            this.parseFilterStringHelper(flagLength, 'subtasks')
+            this.parseFilterStringHelper(string, parsedFlags, flagLength, 'subtasks')
         }
         return parsedFlags
     }
 
-    parseFilterStringHelper(flagLength, key) {
+    parseFilterStringHelper(string, parsedFlags, flagLength, key) {
         let flagValue = string.slice(string.indexOf(flagLength)+flagLength.length+1)
         if(flagValue.includes('-')) flagValue = flagValue.slice(0, flagValue.indexOf('-'))
         if(key==='finished') {

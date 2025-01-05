@@ -116,7 +116,6 @@ function parseName(string, parsedCommand) {
         const indexOfFirstSpace = string.indexOf(' ') > 0 ? string.indexOf(' ') : string.length
         const indexOfFirstFlag = string.indexOf('-') > 0 ? string.indexOf('-') : string.length
         const name = string.slice(indexOfFirstSpace, indexOfFirstFlag).trim()
-        console.log(`name: '${name}'`)
         if(!name) return [null, 'error']
         return [name, null]
     }

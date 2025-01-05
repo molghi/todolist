@@ -33,16 +33,18 @@
                     if (!input.value.startsWith('> ')) {
                         input.value = '> ' + input.value.trimStart();
                     }
-                    // Move the cursor to the end of the input
-                    input.setSelectionRange(input.value.length, input.value.length);
+                    // Move the cursor 
+                    if(input.selectionStart < 2) input.setSelectionRange(2, 2);
+                    // input.setSelectionRange(input.value.length, input.value.length);
                 }
 
 
                 // case: if it's an 'paste' event:
-                if(ev === 'paste') {
+                if (ev === 'paste') {
                     const pastedText = (e.clipboardData || window.clipboardData).getData('text'); // Retrieves the text data being pasted. `e.clipboardData` is a modern browser API providing access to clipboard content during a paste event. '.getData('text')' extracts the plain text content from the clipboard.
-                    input.value = '> ' + pastedText.trim();
-                    e.preventDefault(); // Stops the default paste behaviour of the browser
+                    const currentValue = input.value; // Get current value in the input field
+                    input.value = currentValue + pastedText.trim(); // Append the pasted text to the current value
+                    e.preventDefault(); // Prevents the default paste behaviour of the browser
                     input.setSelectionRange(input.value.length, input.value.length); // Moves the blinking cursor (caret) to the end of the input field after updating its value
                 }
 

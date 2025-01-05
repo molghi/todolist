@@ -1,0 +1,48 @@
+.hidden {
+    display: none !important;
+}
+
+.highlight {
+    box-shadow: 0 0 10px var(--accent);
+}
+
+.system-message {
+    display: block;
+    width: 100%;
+
+    span:nth-child(1) {
+        opacity: 0.5;
+    }
+}
+
+.input-box {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    font-weight: bold;
+
+    span {
+        font-weight: normal;
+    }
+}
+
+.finished {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.underlined {
+    text-decoration: underline;
+}
+
+.bold {
+    font-weight: bold;
+}

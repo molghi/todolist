@@ -30,15 +30,18 @@ function init() {
 
     if(myState) { // if local storage for state is not empty...
         const fetchedState = JSON.parse(myState)
-        // console.log(`fetchedState`,fetchedState)
+        console.log(`fetchedState`,fetchedState)
         fetchedState.todos.forEach((toDo, i) => {
             Visual.renderToDo(toDo, i+1) // render each todo
             Logic.pushToDo(toDo) // push to Model's state
         }) 
-        // console.log(`LogicState`, Logic.getState())
+        console.log(`LogicState`, Logic.getState())
         if(fetchedState.accentColor) {
             Logic.changeAccentColor(fetchedState.accentColor)
             Visual.changeUIColors(fetchedState.accentColor)
+        }
+        if(fetchedState.recentCommands.length > 0) {
+            fetchedState.recentCommands.forEach(com => Logic.pushRecentCommand(com))
         }
     }
 
@@ -150,7 +153,7 @@ function handleFormSubmit(value, type='') {
     }
 
     if(command === 'manual' || command === 'man') {
-        toggleManual()
+        toggleManual(value)
         return
     }
     
@@ -181,8 +184,8 @@ function deleteSubtaskByBtn(subtaskName) {
 
 // =======================================================================================================================================
 
-function toggleManual() {
-    console.log(`heres your manual`)
+function toggleManual(value) {
+    Logic.pushRecentCommand(value.trim()) // pushing recent command to Model's state
     Visual.toggleManual()
 }
 

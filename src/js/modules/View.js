@@ -277,19 +277,61 @@ class View {
 
     // =======================================================================================================================================
 
-    toggleManual(flag='show') {
-        if(document.querySelector('.manual-wrapper')) document.querySelector('.manual-wrapper').remove() // removing it before creating it
-        const manualWrapper = document.createElement('div')
-        manualWrapper.classList.add('manual-wrapper')
-        this.manualEl = manualWrapper
-        this.setInputValue('press q or esc to hide the manual: ')
-        this.showSystemMessage('showing the manual (press q or esc to hide it)')
-
-        manualWrapper.innerHTML = manual();   // I import it above
-        
-        this.sectionContainer.appendChild(manualWrapper)
-        this.itemsTopmostEl.classList.toggle('hidden')
+    // toggleManual's dependency:
+    hideManual = (e) => {
+        /* NOTE:
+        I cannot use '.bind(this)' in the event listener in 'toggleManual' (if I want to remove that listener later) because 'bind' returns a new function. And this way the add and remove event listeners will not point to the same function that must be removed.
+        I must have the function that I want to remove defined separately.
+        And I must use the arrow function which basically jumps over one layer of 'this', meaning attached to the event listener, 'this' will point not to the element that has this event listener but to one layer above, which in this case is this class of View, the enclosing entity (here, class).
+        */
+        // if(e.code !== 'KeyQ' && e.code !== 'Escape') return
+        if(e.code !== 'Escape') return
+        this.toggleManual('hide')
+        this.clearFormInput()
+        this.focusInput()
     }
+
+    // =======================================================================================================================================
+
+    toggleManual(flag='show') {
+        if(flag==='hide') {
+            document.querySelector('.manual-wrapper').remove()   // removing (effectively hiding) the manual
+            this.manualEl = ''
+            this.itemsTopmostEl.classList.remove('hidden')    // unhiding .items
+            this.showSystemMessage('manual was closed')
+            document.removeEventListener('keydown', this.hideManual)
+        } else {
+            const manualWrapper = document.createElement('div')   // creating the topmost manual div
+            manualWrapper.classList.add('manual-wrapper')
+            this.manualEl = manualWrapper
+            this.clearFormInput()
+            this.showSystemMessage('showing the manual (press esc to hide it)')
+            manualWrapper.innerHTML = manual();   // I import 'manual' above
+            this.sectionContainer.appendChild(manualWrapper)   // rendering it in the DOM
+            this.itemsTopmostEl.classList.add('hidden')       // hiding .items
+            this.formInput.blur()
+        }
+        document.addEventListener('keydown', this.hideManual)
+    }
+
+    // =======================================================================================================================================
+
+    
+
+    /* --forbid typing in the input (only permit if it's Q); --if it was Q or Esc, remove manual and show all items
+
+    so what i want to do is:
+    show the manual -- but when it's shown, track what key I press: 
+        if it was q or esc, i hide the manual. 
+        if it was anything but q or esc, clear the input field. 
+
+    don't write code, explain conceptually. it's a little tricky to figure out or maybe it's just too late in the night:
+    I pass a command to input -- once I recognise it, I run a fn that shows the manual and hides the UI elements;
+    in this state when I am showing the manual, I want to track what key is being pressed: if it was Q or Esc, I hide the manual and show the UI
+    how to do it? I am a little slow today. 
+    should I have another fn with the event listener attached to the document as well as another one attached to my input?
+    and then in that fn where I show the manual, at the end of it I would call that another fn with the listeners, eh?
+    */
 
     // =======================================================================================================================================
 }
