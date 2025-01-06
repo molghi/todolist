@@ -17,7 +17,6 @@
     form {
         padding-top: 10px;
         padding-bottom: 10px;
-        // margin-bottom: 10px;
         width: 100%;
         background-color: var(--bg);
         position: sticky;
@@ -115,7 +114,6 @@
                 flex-shrink: 0;
                 flex-basis: 16.5px;
                 min-width: 16.5px;
-                // min-width: 25.5px;
             }
 
 
@@ -132,24 +130,26 @@
             }
 
             &__name, &__priority, &__deadline, &__has-subtasks, &__is-completed, &__category {
-                // min-width: 145px;
-                // max-width: 145px;
+                display: block;
+                margin: 0;
+                padding: 0;
+                border: none;
                 flex-grow: 0; /* Allow the element to grow */
                 flex-shrink: 1; /* Allow it to shrink */
                 flex-basis: 145px; /* Set the initial size (the starting point before growing or shrinking) */
                 min-width: 145px; /* Prevent the element from shrinking below 100px */
                 overflow: hidden;
                 text-overflow: ellipsis;
+                @media (max-width: 1500px){
+                    flex-basis: 140px; 
+                    min-width: 140px;
+                    max-width: 140px;
+                }
                 @media (min-width: 1500px){
                     flex-grow: 1;
                 }
-                @media (max-width: 1500px){
-                    max-width: 145px;
-                }
             }
             &__date {
-                // min-width: 155px;
-                // max-width: 155px;
                 flex-grow: 0; 
                 flex-shrink: 1; 
                 flex-basis: 155px; 
@@ -186,6 +186,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
+                justify-content: flex-start;
                 column-gap: 60px;
                 margin-bottom: 3px;
                 border-bottom: none;
@@ -199,7 +200,6 @@
                     display: flex;
                     align-items: center;
                     column-gap: 33px;
-                    // max-width: 1300px;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     width: 100%;
@@ -227,10 +227,16 @@
             &__subtasks-holder {
                 display: block;
                 width: 100%;
+                margin: 0;
+                padding: 0;
+                border: none;
                 table, tbody {
                     display: block;
                     width: 100%;
                     max-width: 100%;
+                    margin: 0;
+                    padding: 0;
+                    border: none;
                 }
                 tr{
                     width: 100%;
@@ -247,7 +253,18 @@
 
 
             &__subtask {
+                display: flex;
                 justify-content: flex-start;
+                align-items: center;
+                column-gap: 33px;
+                // column-gap: 60px;
+                height: 21px;
+                text-overflow: ellipsis;
+                width: 100%;
+                margin-bottom: 3px;
+                td:nth-child(1) {
+                    white-space: nowrap;
+                }
                 &[data-finished="true"] {
                     .item__subtask-name{
                         text-decoration: line-through;
@@ -264,19 +281,14 @@
                     font-style: italic;
                     opacity: 0.5;
                 }
-                height: 21px;
-                display: flex;
-                align-items: center;
-                column-gap: 33px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                width: 100%;
-                margin-bottom: 3px;
                 &:hover {
                     background-color: #222;
                 }
-                &-number {}
+                &-number {
+                    display: block;
+                }
                 &-name {
+                    display: block;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
@@ -286,6 +298,7 @@
                     max-width: 130px;
                 }
                 &-finished {
+                    display: block;
                     flex-grow: 1;
                     flex-shrink: 1;
                     flex-basis: 122px;
@@ -298,11 +311,8 @@
                     column-gap: 20px;
                     flex-grow: 0;
                     flex-shrink: 0;
-                    flex-basis: 84px;
+                    flex-basis: 0;
                     min-width: 84px;
-                    // @media (max-width: 1500px){
-                        // transform: translateX(4px); // TO FIX
-                    // }
                 }
             }
 

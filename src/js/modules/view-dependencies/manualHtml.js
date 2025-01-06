@@ -5,19 +5,19 @@ export function manual() {
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>add</span> buy milk</span> &mdash;
-                            <span class="manual-command-explanation">Adds "buy milk"</span>
+                            <span class="manual-command-explanation">Adds "buy milk" as a task on the list. You don't need to wrap your task name (or any other flag value) in quotes.</span>
                         </div>
                     </li>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>add</span> buy milk -p high -c food -d today</span> &mdash;
-                            <span class="manual-command-explanation">Adds "buy milk" with extra flags: priority (flag -p) will be "high", category (flag -c) will be "food", deadline (flag -d) will be "today"</span>
+                            <span class="manual-command-explanation">Adds "buy milk" with extra flags: priority (flag -p or --prio) will be "high", category (flag -c or --cat) will be "food", deadline (flag -d or --dead) will be "today"</span>
                         </div>
                     </li>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>add</span> food shopping -c food -s buy apples, buy oranges, buy bananas</span> &mdash;
-                            <span class="manual-command-explanation">Adds "food shopping" with extra flags: category (-c) will be "food", and it will have 3 subtasks: "buy apples", "buy oranges", and "buy bananas"</span>
+                            <span class="manual-command-explanation">Adds "food shopping" with extra flags: category (-c or --cat) will be "food", and it will have 3 subtasks (flag -s or --sub): "buy apples", "buy oranges", and "buy bananas" (if there is more than one subtask to add, they must be separated by commas)</span>
                         </div>
                     </li>
                     <li class="manual-section-line-wrapper">
@@ -29,7 +29,7 @@ export function manual() {
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>add</span> 1 buy milk, buy tea</span> &mdash;
-                            <span class="manual-command-explanation">Assuming that there is an item with the index of 1 on the list, it adds 2 subtasks to it, "buy milk" and "buy tea"</span>
+                            <span class="manual-command-explanation">Assuming that there is an item with the index of 1 on the list, it adds 2 subtasks to it, "buy milk" and "buy tea" (if there is more than one subtask to add, they must be separated by commas)</span>
                         </div>
                     </li>
                 </ol>
@@ -57,37 +57,37 @@ export function manual() {
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>edit</span> 1 -n hello world</span> &mdash;
-                            <span class="manual-command-explanation">Changes the name (-n) of the item with the index of 1 to "hello world"</span>
+                            <span class="manual-command-explanation">Changes the name (flag -n or --name) of the item with the index of 1 to "hello world". In editing, you must always pass flags, even when editing a name.</span>
                         </div>
                     </li>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>edit</span> 1 -n buy bread -p medium -c bakery -d tomorrow</span> &mdash;
-                            <span class="manual-command-explanation">Changes the name (flag -n) of the item with the index of 1 to "buy bread", its priority (-p) to "medium", its category (-c) to "bakery", and its deadline (-d) to "tomorrow"</span>
+                            <span class="manual-command-explanation">Changes the name (flag -n or --name) of the item with the index of 1 to "buy bread", its priority (flag -p or --prio) to "medium", its category (flag -c or --cat) to "bakery", and its deadline (flag -d or --dead) to "tomorrow"</span>
                         </div>
                     </li>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>edit</span> 1 -f true</span> &mdash;
-                            <span class="manual-command-explanation">Effectively, completes the to-do with the index of 1 (changes its finished flag to true)</span>
+                            <span class="manual-command-explanation">Effectively, completes the to-do with the index of 1 (changes its finished flag, -f or --finished, to true)</span>
                         </div>
                     </li>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>edit</span> 1 -f false</span> &mdash;
-                            <span class="manual-command-explanation">Effectively, uncompletes the to-do with the index of 1 (changes its finished flag to false)</span>
+                            <span class="manual-command-explanation">Effectively, uncompletes the to-do with the index of 1 (changes its finished flag, -f or --finished, to false)</span>
                         </div>
                     </li>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>edit</span> 1.1 -n do something</span> &mdash;
-                            <span class="manual-command-explanation">Changes the name (-n) of the subtask with the index of 1.1 to "do something"</span>
+                            <span class="manual-command-explanation">Changes the name (flag -n or --name) of the subtask with the index of 1.1 to "do something"</span>
                         </div>
                     </li>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>edit</span> 1.1 -f true</span> &mdash;
-                            <span class="manual-command-explanation">Effectively, completes the subtask with the index of 1.1 (changes its finished flag to true)</span>
+                            <span class="manual-command-explanation">Effectively, completes the subtask with the index of 1.1 (changes its finished flag, -f or --finished, to true)</span>
                         </div>
                     </li>
                 </ol>
@@ -98,37 +98,37 @@ export function manual() {
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>fil</span> -n buy</span> &mdash;
-                            <span class="manual-command-explanation">Filters by name (-n) and shows only those items that have "buy" in their names (you can write "filter" instead of "fil" there)</span>
+                            <span class="manual-command-explanation">Filters by name (flag -n) and shows only those items that have "buy" in their names. To filter, you must always pass both a flag and a value to look for. (you can write "filter" instead of "fil" there)</span>
                         </div>
                     </li>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>fil</span> -p high</span> &mdash;
-                            <span class="manual-command-explanation">Filters by priority (-p) and shows only those items that have the priority set to "high"</span>
+                            <span class="manual-command-explanation">Filters by priority (flag -p) and shows only those items that have the priority set to "high"</span>
                         </div>
                     </li>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>fil</span> -c food</span> &mdash;
-                            <span class="manual-command-explanation">Filters by category (-c) and shows only those items that have "food" in their category</span>
+                            <span class="manual-command-explanation">Filters by category (flag -c) and shows only those items that have "food" in their category</span>
                         </div>
                     </li>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>fil</span> -d overdue</span> &mdash;
-                            <span class="manual-command-explanation">Filters by deadline (-d) and shows only those items that are overdue</span>
+                            <span class="manual-command-explanation">Filters by deadline (flag -d) and shows only those items that are overdue</span>
                         </div>
                     </li>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>fil</span> -s true</span> &mdash;
-                            <span class="manual-command-explanation">Filters by the subtasks state (-s) and shows only those items that have subtasks</span>
+                            <span class="manual-command-explanation">Filters by the subtasks state (flag -s) and shows only those items that have subtasks</span>
                         </div>
                     </li>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>fil</span> -f false</span> &mdash;
-                            <span class="manual-command-explanation">Filters by the finished state (-f) and shows only those items that are unfinished</span>
+                            <span class="manual-command-explanation">Filters by the finished state (-f) and shows only those items that are not finished</span>
                         </div>
                     </li>
                     <li class="manual-section-line-wrapper">
@@ -174,7 +174,7 @@ export function manual() {
                     </li>
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
-                            <span class="manual-command"><span>sort</span> def</span> &mdash;
+                            <span class="manual-command"><span>sort</span> def or sort default</span> &mdash;
                             <span class="manual-command-explanation">Returns the default state (unsorts it)</span>
                         </div>
                     </li>

@@ -29,6 +29,9 @@ body {
     flex-direction: column;
     justify-content: space-between;
     overflow-x: hidden;
+    @media (max-width: 1415px){
+        overflow-x: initial;
+    }
 }
 
 input,

@@ -23,7 +23,6 @@ class LS {
     // clear everything in local storge
     clear() {
         localStorage.clear()
-        console.log(`local storage is clear now`)
     }
 
     // get how many items are stored there
@@ -32,5 +31,5 @@ class LS {
     }
 }
 
-export default new LS()  // I export and instantiate it right here, so I don't have to instantiate it where I import it
 // export default LS
+export default new LS()  // I export and instantiate it right here, so I don't have to instantiate it where I import it

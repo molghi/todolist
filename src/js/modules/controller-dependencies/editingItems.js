@@ -184,9 +184,7 @@ function editItem(value) {
 
 
 
-
 // ==========================================================================================================================================
-
 
 
 
@@ -198,4 +196,20 @@ function editTodoByBtn(valueToEdit) {
 }
 
 
-export {editItem, editTodoByBtn};
+
+// ==========================================================================================================================================
+
+
+function editSubtaskByBtn(subtaskName, subtaskIndexUI) {
+    /* what must happen:
+    - bring all of this subtask into input:      edit 6.1 -n hoover -f true
+    - focus input
+    */
+    const subtaskEl = [...document.querySelectorAll('.item__subtask-name')].find(x => x.textContent === subtaskName)?.closest('.item__subtask')
+    const subtaskFinishedText = subtaskEl.querySelector('.item__subtask-finished').textContent.split(':')[1].trim()
+    Visual.setInputValue(`edit ${subtaskIndexUI} -n ${subtaskName} -f ${subtaskFinishedText}`)
+    Visual.focusInput()
+}
+
+
+export {editItem, editTodoByBtn, editSubtaskByBtn};

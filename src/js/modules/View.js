@@ -24,20 +24,21 @@ class View {
         this.itemToDelete = ''
         this.deletionItemType = 'majortask'
         this.manualEl = ''
+        this.fileInputEl = document.querySelector('.file-input')
     }
 
     // =======================================================================================================================================
 
-    // changes UI colour
+    // changes UI colour, returns a colour string
     changeUIColors(color) {
         return changeUIColors(color, this.colorUI, this.showSystemMessage);   // I import it above;   
-        // I call this View's method the same as the function I'm calling here to avoid renaming everywhere where I use this method in other files
+        // NOTE: I call this View's method the same as the function I'm calling here to avoid renaming everywhere where I use this method in other files
     }
 
     // =======================================================================================================================================
 
-    // small helper fn for changeUIColors()
-    isValidHTMLColor(color) { // returns boolean
+    // small helper fn for changeUIColors: checks if the typed colour was a correct html colour and that it wasn't too dark; returns boolean
+    isValidHTMLColor(color) { 
         isValidHTMLColor(color);    // I import it above
     }
 
@@ -50,46 +51,45 @@ class View {
 
     // =======================================================================================================================================
 
-    showSystemMessage(msgString) {
+    showSystemMessage(msgString) {    // shows a message that's under the input field
         this.systemMsgEl.innerHTML = msgString
     }
 
     // =======================================================================================================================================
 
-    // clears form input
-    clearFormInput() {
-        this.formEl.elements.forminput.value = '> ' // clear the input
+    clearFormInput() {   // clears form input
+        this.formEl.elements.forminput.value = '> '
     }
 
     // =======================================================================================================================================
 
-    // to make sure that '> ' at the beginning of the input is undeletable
+    // a fn to make sure that '> ' at the beginning of the input is undeletable
     formatInput() {
         formatInput(this.formInput);    // I import it above
     }
 
     // =======================================================================================================================================
     
-    // renders to-do in the DOM
+    // renders a to-do in the DOM
     renderToDo(toDoObj, order) {
         renderToDo(toDoObj, order, this.itemsWrapperEl);    // I import it above
     }
 
     // =======================================================================================================================================
 
-    focusInput() {
+    focusInput() {     // focuses the input field
         this.formInput.focus()
     }
 
     // =======================================================================================================================================
 
-    setInputValue(value) {
+    setInputValue(value) {     // sets the value of the input field
         this.formInput.value = `> ${value}`
     }
 
     // =======================================================================================================================================
 
-    removeAllTodos() {
+    removeAllTodos() {     // removes all todo els (majortasks and subtasks)
         while(this.itemsWrapperEl.firstChild) { 
                 this.itemsWrapperEl.removeChild(this.itemsWrapperEl.firstChild)
             }
@@ -97,16 +97,14 @@ class View {
 
     // =======================================================================================================================================
 
-    // updates a todo (after form submit in editing)
-    updateTodoElement(el, value) { 
+    updateTodoElement(el, value) {   // updates a todo (after form submit in editing)       do I use it anywhere?...
         el.querySelector('.item__name').textContent = value
         el.querySelector('.item__name').setAttribute('title', value)
     }
 
     // =======================================================================================================================================
     
-    // I allow no uppercase to be typed in
-    deUppercaseInput() {
+    deUppercaseInput() {   // because I allow no uppercase to be typed
         this.formInput.addEventListener('input', (e) => {
             this.formInput.value = this.formInput.value.toLowerCase()
         })
@@ -114,7 +112,7 @@ class View {
 
     // =======================================================================================================================================
 
-    toggleTodo(todoEl, flag='hide') {
+    toggleTodo(todoEl, flag='hide') {     //  do I use it anywhere?...
         if(flag==='show') {
             return todoEl.classList.remove('hidden')
         }
@@ -129,35 +127,31 @@ class View {
 
 
 
-
-    // form submit handler
-    formSubmit(handler) {
+    formSubmit(handler) {  // form submit handler
         this.formEl.addEventListener('submit', (e) => {
             e.preventDefault()
-            const formInputValue = this.formEl.elements.forminput.value.slice(2)
+            const formInputValue = this.formEl.elements.forminput.value.slice(2)   // slicing out '> '
             if(!formInputValue) return
-            handler(formInputValue.trim()) // key and value to update Model aka local storage
+            handler(formInputValue.trim())  // to update Model and local storage
         })
     }
 
     // =======================================================================================================================================
 
-    handleTogglingSubtasks(handler) {
+    handleTogglingSubtasks(handler) {    // runs when I click on a majortask that has subtasks: subs will be hidden or shown
         this.itemsWrapperEl.addEventListener('click', (e) => {
-            // if(!e.target.classList.contains('with-subtasks')) return
             if(!e.target.closest('.with-subtasks')) return
             const subtasksBoxEl = e.target.closest('.item').querySelector('.item__subtasks-holder')
-            subtasksBoxEl.classList.toggle('hidden')
+            subtasksBoxEl.classList.toggle('hidden')     // hide or show those subs
             const state = subtasksBoxEl.classList.contains('hidden') ? 'hidden' : 'shown'
             const todoName = e.target.closest('.item').querySelector('.item__name').textContent
-            handler(todoName, state)
+            handler(todoName, state)  // to update Model and local storage
         })
     }
 
     // =======================================================================================================================================
 
-    // handles clicking on the delete btn of any todo
-    handleRemovingTodo(handler) {
+    handleRemovingTodo(handler) {   // handles clicking on the delete btn of any todo (majortask)
         this.itemsWrapperEl.addEventListener('click', (e) => {
             if(!e.target.closest('.item__btn--remove')) return
             const todoName = e.target.closest('.item').querySelector('.item__name').textContent
@@ -167,8 +161,7 @@ class View {
 
     // =======================================================================================================================================
 
-    // handles clicking on the edit btn of any todo
-    handleEditingTodo(handler) {
+    handleEditingTodo(handler) {    // handles clicking on the edit btn of any todo (majortask)
         this.itemsWrapperEl.addEventListener('click', (e) => {
             if(!e.target.closest('.item__btn--edit')) return
             const valueToEdit = e.target.closest('.item').querySelector('.item__name').textContent
@@ -178,15 +171,15 @@ class View {
 
     // =======================================================================================================================================
 
-    handleCompletingTodo(handler) {
+    handleCompletingTodo(handler) {     // handles clicking on the complete btn of any todo (majortask or subtask)
         this.itemsWrapperEl.addEventListener('click', (e) => {
             if(!e.target.closest('.item__btn--complete') && !e.target.closest(`.item__subtask-btn--complete`)) return
             let indexToEdit, type
-            if(e.target.closest('.item__btn--complete')) {
+            if(e.target.closest('.item__btn--complete')) {  // if it was a majortask
                 indexToEdit = e.target.closest('.item').querySelector('.item__number').textContent
                 type = 'majortask'
             }
-            if(e.target.closest('.item__subtask-btn--complete')) {
+            if(e.target.closest('.item__subtask-btn--complete')) {  // if it was a subtask
                 indexToEdit = e.target.closest('.item__subtask').querySelector('td:nth-child(2)').textContent
                 type = 'subtask'
             }
@@ -196,7 +189,7 @@ class View {
 
     // =======================================================================================================================================
 
-    handleArrowKeys(handler) {
+    handleArrowKeys(handler) {     // handles pressing the arrow up or arrow down keys while the form input is focused
         document.addEventListener('keydown', (e) => {
             if(e.code === 'ArrowUp' && document.activeElement.classList.contains('form-input')) {
                 handler(`show previous command`, document.activeElement)
@@ -209,8 +202,7 @@ class View {
 
     // =======================================================================================================================================
     
-    // shifts the cursor in the input field to the end of what's in the input field
-    shiftCursorToTheEndAfterPasting() { 
+    shiftCursorToTheEndAfterPasting() {     // upon pasting, shifts the cursor in the input field to the end of what's in the input field
         this.formInput.addEventListener('paste', (e) => {   // I need the 'paste' event
             setTimeout(() => { // I need 'setTimeout' to allow the paste operation to complete before manipulating the cursor position
                 this.shiftCursorToTheEndNow()
@@ -220,14 +212,16 @@ class View {
 
     // =======================================================================================================================================
 
-    shiftCursorToTheEndNow() { 
-        const length = this.formInput.value.length
-        this.formInput.setSelectionRange(length, length) // I set the cursor to the end of the input using 'selectionStart' and 'selectionEnd' properties, or the 'setSelectionRange' method
+    shiftCursorToTheEndNow() {    // shifts the cursor in the input field to the end of what's in the input field
+        // const length = this.formInput.value.length
+        // this.formInput.setSelectionRange(length, length) 
+        if(this.formInput.selectionStart < 2) this.formInput.setSelectionRange(2, 2);
+        // NOTE: I can set the cursor to the end of the input using 'selectionStart' and 'selectionEnd' properties, or the 'setSelectionRange' method
     }
 
     // =======================================================================================================================================
 
-    trackTabPress(handler) {
+    trackTabPress(handler) {    // handles pressing the tab key while the form input is focused: runs in autocompleting a typed command
         document.addEventListener('keydown', (e) => {
             if(e.key === 'Tab' && document.activeElement.classList.contains('form-input')) {
                 e.preventDefault()
@@ -241,7 +235,7 @@ class View {
 
     // =======================================================================================================================================
 
-    setDoneAction(command,todoObj) {
+    setDoneAction(command, todoObj) {     // retuns what will be pasted into the input field; shows the action that was just executed
         let actionDone 
         if(command === 'add') actionDone = 'added'
         if(command === 'edit') actionDone = 'edited'
@@ -252,7 +246,7 @@ class View {
 
     // =======================================================================================================================================
 
-    handleEditingSubtask(handler) {
+    handleEditingSubtask(handler) {     // handles pressing the edit btn of a subtask
         this.itemsWrapperEl.addEventListener('click', (e) => {
             if(!e.target.closest('.item__subtask-btn--edit')) return
             const subtaskEl = e.target.closest('.item__subtask')
@@ -264,7 +258,7 @@ class View {
 
     // =======================================================================================================================================
 
-    handleDeletingSubtask(handler) {
+    handleDeletingSubtask(handler) {     // handles pressing the delete btn of a subtask
         this.itemsWrapperEl.addEventListener('click', (e) => {
             if(!e.target.closest('.item__subtask-btn--remove')) return
             const subtaskEl = e.target.closest('.item__subtask')
@@ -277,15 +271,14 @@ class View {
 
     // =======================================================================================================================================
 
-    // toggleManual's dependency:
+    // toggleManual's dependency; needed as a separate fn so the removeEventListener could remove it then
     hideManual = (e) => {
         /* NOTE:
         I cannot use '.bind(this)' in the event listener in 'toggleManual' (if I want to remove that listener later) because 'bind' returns a new function. And this way the add and remove event listeners will not point to the same function that must be removed.
         I must have the function that I want to remove defined separately.
         And I must use the arrow function which basically jumps over one layer of 'this', meaning attached to the event listener, 'this' will point not to the element that has this event listener but to one layer above, which in this case is this class of View, the enclosing entity (here, class).
         */
-        // if(e.code !== 'KeyQ' && e.code !== 'Escape') return
-        if(e.code !== 'Escape') return
+        if(e.code !== 'Escape') return   // if I pressed Esc, the manual will be hidden and the input will be focused again (I blur it in toggleManual)
         this.toggleManual('hide')
         this.clearFormInput()
         this.focusInput()
@@ -293,47 +286,36 @@ class View {
 
     // =======================================================================================================================================
 
-    toggleManual(flag='show') {
-        if(flag==='hide') {
+    toggleManual(flag='show') {    // showing or hiding the manual
+        if(flag==='hide') { // case: hiding
             document.querySelector('.manual-wrapper').remove()   // removing (effectively hiding) the manual
             this.manualEl = ''
             this.itemsTopmostEl.classList.remove('hidden')    // unhiding .items
             this.showSystemMessage('manual was closed')
             document.removeEventListener('keydown', this.hideManual)
-        } else {
+        } else { // case: showing
             const manualWrapper = document.createElement('div')   // creating the topmost manual div
             manualWrapper.classList.add('manual-wrapper')
             this.manualEl = manualWrapper
             this.clearFormInput()
+            this.formInput.blur()
             this.showSystemMessage('showing the manual (press esc to hide it)')
-            manualWrapper.innerHTML = manual();   // I import 'manual' above
+            manualWrapper.innerHTML = manual();   // I import 'manual()' above
             this.sectionContainer.appendChild(manualWrapper)   // rendering it in the DOM
             this.itemsTopmostEl.classList.add('hidden')       // hiding .items
-            this.formInput.blur()
         }
         document.addEventListener('keydown', this.hideManual)
     }
 
     // =======================================================================================================================================
 
-    
+    //  I use it in 'completeTodoByBtn' in 'smallFunctions.js'
+    toggleCompletionStyles(indexToEdit, isCompleted) {
+        const entireSubtaskEl = [...document.querySelectorAll('.item__subtask')].find(x => x.querySelector('td:nth-child(2)').textContent === indexToEdit) // finding that subtask element the index element of which has the same content as 'indexToEdit'
+        if(isCompleted) entireSubtaskEl.querySelector('td:nth-child(3)').classList.add('finished') // if this subtask is completed, add styles to the name element of this subtask
+        else entireSubtaskEl.querySelector('td:nth-child(3)').classList.remove('finished')  // else remove styles
+    }
 
-    /* --forbid typing in the input (only permit if it's Q); --if it was Q or Esc, remove manual and show all items
-
-    so what i want to do is:
-    show the manual -- but when it's shown, track what key I press: 
-        if it was q or esc, i hide the manual. 
-        if it was anything but q or esc, clear the input field. 
-
-    don't write code, explain conceptually. it's a little tricky to figure out or maybe it's just too late in the night:
-    I pass a command to input -- once I recognise it, I run a fn that shows the manual and hides the UI elements;
-    in this state when I am showing the manual, I want to track what key is being pressed: if it was Q or Esc, I hide the manual and show the UI
-    how to do it? I am a little slow today. 
-    should I have another fn with the event listener attached to the document as well as another one attached to my input?
-    and then in that fn where I show the manual, at the end of it I would call that another fn with the listeners, eh?
-    */
-
-    // =======================================================================================================================================
 }
 
 export default View

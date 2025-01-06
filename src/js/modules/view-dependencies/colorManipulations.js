@@ -1,8 +1,9 @@
-    // changes UI colour
+
+    // changes UI colour, returns a colour string
     function changeUIColors(color, colorUI, showSystemMessage) {
         if(color === 'def' || color === 'default') {
             document.documentElement.style.setProperty('--accent', '#32cd32');
-            colorUI = '#32CD32';
+            colorUI = '#32cd32';
             return '#32cd32'
         }
         if(!color) {
@@ -20,8 +21,8 @@
 
     // =======================================================================================================================================
 
-    // small helper fn for changeUIColors()
-    function isValidHTMLColor(color) { // returns boolean
+    // a dependency of changeUIColors: : checks if the typed colour was a correct html colour and that it wasn't too dark; returns boolean
+    function isValidHTMLColor(color) { 
 
         // Create a temporary element to validate the colour:
         const element = document.createElement('div')
@@ -36,10 +37,8 @@
         }
 
         // PART 2/2: Check if the typed colour is not too dark:
-
         // Get the computed colour in RGB format
         const computedColor = window.getComputedStyle(element).color
-        // console.log(`'${computedColor}'`)
 
         // Remove the temporary element from the document
         document.body.removeChild(element);
@@ -54,21 +53,12 @@
         // Extract RGB components
         const [r, g, b] = match.slice(1).map(Number);
 
-        // Debug: Log extracted RGB values
-        // console.log(`Extracted RGB: r=${r}, g=${g}, b=${b}`);
-
         // Calculate relative luminance (W3C formula)
         const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-
-        // Debug: Log computed luminance
-        // console.log(`Computed Luminance: ${luminance}`);
 
         // Define the darkness threshold (for #555)
         // const darknessThreshold = (0.2126 * 85 + 0.7152 * 85 + 0.0722 * 85) / 255;
         const darknessThreshold = 0.1
-
-        // Debug: Log darkness threshold
-        // console.log(`Darkness Threshold: ${darknessThreshold}`);
 
         // Return false if luminance is below the threshold
         return luminance >= darknessThreshold;
@@ -76,10 +66,10 @@
 
     // =======================================================================================================================================
 
-    // runs on app init: we check LS 'colorUI' and if exists, this fn runs
-    function setAccentColor(color, colorUI) {
+    // runs on app init: we check LS 'colorUI' and if it exists, this fn runs
+    function setAccentColor(color, colorUI) {    // 'colorUI' is 'View.colorUI'
         if(!color) return
-        document.documentElement.style.setProperty('--accent', color)
+        document.documentElement.style.setProperty('--accent', color);
         colorUI = color
     }
 

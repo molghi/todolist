@@ -4,28 +4,27 @@ import { Logic, Visual } from '../../Controller.js';
 function exportTodos() {
     Logic.pushRecentCommand(`export`) // pushing recent command to Model's state
 
+    // setting up:
     const myData = Logic.getState()
     const now = new Date()
     const nowString = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}--${now.getHours()}-${now.getMinutes()}`
     const filename = `my-data-${nowString}.json`
 
-    const json = JSON.stringify(myData, null, 2); // Converting data to JSON: Converts the JavaScript object 'myData' into a formatted JSON string. The 'null, 2' arguments ensure the output is pretty-printed with 2-space indentation for readability.
-    const blob = new Blob([json], { type: 'application/json' }); // Creating a blob: Creates a binary large object (Blob) containing the JSON string, specifying the MIME type as 'application/json' to ensure it's recognised as a JSON file.
+    const json = JSON.stringify(myData, null, 2); // JSON-stringifying. The 'null, 2' arguments ensure the output is pretty-printed with 2-space indentation for readability.
+    const blob = new Blob([json], { type: 'application/json' }); // Creating a blob: a binary large object (Blob) containing the JSON string, specifying the MIME type as 'application/json' to ensure it's recognised as a JSON file.
     const url = URL.createObjectURL(blob); // Creating a download URL: Generates a temporary URL pointing to the Blob, enabling it to be downloaded as a file by associating it with a download link.
 
-    // Create an invisible anchor element for downloading
+    // Creating an invisible anchor element for downloading:
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
-
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    URL.revokeObjectURL(url); // Cleaning up the URL
 
-    URL.revokeObjectURL(url); // Clean up the URL
-
-    Visual.clearFormInput()
-    Visual.showSystemMessage('data was exported successfully')
+    Visual.showSystemMessage('data was exported successfully')  // showing UI msg
+    Visual.clearFormInput()  // clearing the input
 }
 
 // =======================================================================================================================================
@@ -34,11 +33,9 @@ function exportTodos() {
 function importFile() {
     Logic.pushRecentCommand(`import`) // pushing recent command to Model's state
 
-    const fileInputEl = document.querySelector('.file-input')
-    fileInputEl.click()
+    Visual.fileInputEl.click()  // clicking programmatically
 
-
-    fileInputEl.addEventListener('change', function () {
+    Visual.fileInputEl.addEventListener('change', function () { 
         const file = this.files[0];
         if (!file) return console.log(`no file`);
 
@@ -46,25 +43,21 @@ function importFile() {
         reader.onload = function (e) {
             try {
                 const data = JSON.parse(e.target.result); // Parse JSON if that's the expected format
-                const isValidImport = isCorrectInput(data)
+                const isValidImport = isCorrectInput(data)   // 'isCorrectInput' is my fn that checks if the import was correct (formatted the way I allow it)
                 if(!isValidImport) {
-                    Visual.showSystemMessage('error: invalid import')
-                    Visual.clearFormInput()
-                    return
+                    Visual.showSystemMessage('error: invalid import (incorrectly formatted)');
+                    return Visual.clearFormInput()
                 }
                 Logic.import(data)  // taking that imported 'data' object and assigning its props to Model
                 Logic.saveToLS('state', JSON.stringify(Logic.getState()), 'reference') // pushing Model's state to local storage
                 Visual.removeAllTodos() // removing all todo elements to re-render
                 Logic.getStateTodos().forEach((todo, i) => Visual.renderToDo(todo, i+1)) // re-rendering all items anew, UI
-                if(Logic.getState().accentColor) {
-                    Visual.changeUIColors(Logic.getState().accentColor)
-                }
-                Visual.showSystemMessage('import was successful')
-                Visual.clearFormInput()
+                if(Logic.getState().accentColor) Visual.changeUIColors(Logic.getState().accentColor);  // checking if the accent color needs to be changed
+                Visual.showSystemMessage('import was successful') // showing UI msg
+                Visual.clearFormInput()  // clearing the input
             } catch (error) {
-                console.error('error: invalid json');
-                Visual.showSystemMessage('error: invalid json')
-                Visual.clearFormInput()
+                Visual.showSystemMessage('error: invalid file')  // showing UI msg
+                Visual.clearFormInput()  // clearing the input
             }
         };
         reader.readAsText(file); // Read the file as text
@@ -73,7 +66,7 @@ function importFile() {
 
 // =======================================================================================================================================
 
-// maybe I can move to another file
+// a dependency of 'importFile' -- checks if the import was correct (formatted the way I allow it)
 function isCorrectInput(dataObj) {
     let checkPassed = true
 
@@ -129,7 +122,6 @@ function isCorrectInput(dataObj) {
 
     return checkPassed
 }
-
 
 
 export { exportTodos, importFile }

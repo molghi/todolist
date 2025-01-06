@@ -73,4 +73,4 @@ function sortTodos(value) {             // I can rewrite all IF's here in a bett
     }
 }
 
-export default sortTodos;
+export default sortTodos; 
