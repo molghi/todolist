@@ -186,7 +186,7 @@ export function manual() {
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>cc</span> coral</span> &mdash;
-                            <span class="manual-command-explanation">Changes the color of the UI interface to "coral". You can use any HTML colors except those that are too dark since the background is black and its color cannot be changed. (you can write "changecol" instead of "cc" there)</span>
+                            <span class="manual-command-explanation">Changes the color of the UI interface to "coral". You can use any HTML colors except those that are too dark since the background is black and its color cannot be changed. You can write "cc def" to return to the default color. (you can write "changecol" instead of "cc" there)</span>
                         </div>
                     </li>
                 </ol>
@@ -208,7 +208,7 @@ export function manual() {
                     <li class="manual-section-line-wrapper">
                         <div class="manual-section-line">
                             <span class="manual-command"><span>import</span></span> &mdash;
-                            <span class="manual-command-explanation">A possibility to import your file, which must be formatted the same as the one you can export.</span>
+                            <span class="manual-command-explanation">A possibility to import your file, which must be formatted the same as the one you can export. Note: importing replaces all of your existing todos with those that are in your import.</span>
                         </div>
                     </li>
                 </ol>

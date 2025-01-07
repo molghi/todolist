@@ -383,7 +383,7 @@ class Model {
     checkSubtasks(indexToRemove, type) {
         if(type === 'subtask') {
             const majortaskProperIndex = +indexToRemove.split('.')[0] -1   // 'proper' meaning decremented by one because in the UI task indices don't start with 0 but 1
-            const majortaskObj = Logic.getStateTodos()[majortaskProperIndex]
+            const majortaskObj = this.state.todos[majortaskProperIndex]
             if(majortaskObj.subtasks.length === 0) {
                 majortaskObj.hasSubtasks = false
             }
@@ -407,6 +407,17 @@ class Model {
             if(allSubtasksCompleted) return todoObj.isCompleted = true
             if(notAllSubtasksCompleted) return todoObj.isCompleted = false
         }
+    }
+
+    // ================================================================================================
+
+    // I use it in 'filterTodos.js'
+    changeDeadlineFormatting(parsedFlags) {
+        // case: changing 'today' and 'tomorrow' in parsedFlags.deadline (if it is there) to dates like '05.01' and '06.01' so it could filter them right later:
+        const today = String(new Date().getDate()).padStart(2,0) + '.' + String(new Date().getMonth()+1).padStart(2,0)
+        const tomorrow = String(new Date().getDate()+1).padStart(2,0) + '.' + String(new Date().getMonth()+1).padStart(2,0)
+        if(parsedFlags.hasOwnProperty('deadline') && parsedFlags.deadline === 'today') parsedFlags.deadline = today
+        if(parsedFlags.hasOwnProperty('deadline') && parsedFlags.deadline === 'tomorrow') parsedFlags.deadline = tomorrow
     }
 
 }
